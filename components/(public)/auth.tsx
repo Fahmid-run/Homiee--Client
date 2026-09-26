@@ -30,28 +30,72 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useForm } from "@tanstack/react-form-nextjs";
+import { toast } from "../ui/toast";
+import { Field, FieldError, FieldLabel } from "../ui/field";
+import {
+  LoginZodSchema,
+  RegistrationZodSchema,
+} from "@/Validation/form/auth.validator";
 
 export default function Auth() {
   const [mode, setMode] = useState<"login" | "register">("login");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
-  const [role, setRole] = useState("tenant");
-
-  function submit() {
-    setStatus("idle");
-    setLoading(true);
-    window.setTimeout(() => {
-      setLoading(false);
-      setStatus("success");
-    }, 700);
-  }
+  const [role, setRole] = useState("TENANT");
 
   function switchMode(nextMode: "login" | "register") {
     setMode(nextMode);
     setStatus("idle");
     setShowPassword(false);
+
+    form.reset();
   }
+
+  const form = useForm({
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+      role: "",
+    },
+    validators: {
+      onSubmit: mode === "login" ? LoginZodSchema : RegistrationZodSchema,
+    },
+    onSubmit: async ({ value }) => {
+      console.log(value);
+
+      setLoading(true);
+      setStatus("idle");
+
+      try {
+        if (mode === "login") {
+          // API Call for login (e.g., authService.login(value.email, value.password))
+          console.log("Login Payload:", {
+            email: value.email,
+            password: value.password,
+          });
+        } else {
+          // API Call for register
+          console.log("Register Payload:", value);
+        }
+
+        setStatus("success");
+        toast.add({
+          title:
+            mode === "login"
+              ? "Logged in successfully"
+              : "Account created successfully",
+          type: "success",
+        });
+      } catch (error) {
+        setStatus("error");
+      } finally {
+        setLoading(false);
+      }
+    },
+  });
 
   return (
     <main className="min-h-screen bg-muted/30 lg:grid lg:grid-cols-[0.9fr_1.1fr]">
@@ -156,68 +200,135 @@ export default function Auth() {
                   </div>
                 </Alert>
               )}
-              <div className="flex flex-col gap-4">
+              <form
+                className="flex flex-col gap-4"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  form.handleSubmit();
+                }}
+              >
                 {mode === "register" && (
-                  <div className="flex flex-col gap-2">
-                    <Label htmlFor="name">Full name</Label>
-                    <div className="relative">
-                      <UserRound className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                      <Input
-                        id="name"
-                        placeholder="Olivia Martin"
-                        className="pl-10"
-                      />
-                    </div>
-                  </div>
+                  <form.Field name="name">
+                    {(field) => {
+                      const isInvalid =
+                        field.state.meta.isTouched && !field.state.meta.isValid;
+                      return (
+                        <Field>
+                          <FieldLabel htmlFor="name">Full name</FieldLabel>
+                          <div className="relative">
+                            <UserRound className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                            <Input
+                              id={field.name}
+                              name={field.name}
+                              placeholder="Olivia Martin"
+                              className="pl-10"
+                              onBlur={field.handleBlur}
+                              autoComplete="off"
+                              onChange={(e) =>
+                                field.handleChange(e.target.value)
+                              }
+                              aria-invalid={isInvalid}
+                            />
+                          </div>
+                          {isInvalid && (
+                            <FieldError errors={field.state.meta.errors} />
+                          )}
+                        </Field>
+                      );
+                    }}
+                  </form.Field>
                 )}
+                <form.Field name="email">
+                  {(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid;
+                    return (
+                      <Field>
+                        <FieldLabel htmlFor="email">Email address</FieldLabel>
+                        <div className="relative">
+                          <Mail className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                          <Input
+                            id="email"
+                            type="email"
+                            placeholder="you@example.com"
+                            className="pl-10"
+                            aria-invalid={status === "error"}
+                            onBlur={field.handleBlur}
+                            autoComplete="off"
+                            onChange={(e) => field.handleChange(e.target.value)}
+                          />
+                        </div>
+                        {isInvalid && (
+                          <FieldError errors={field.state.meta.errors} />
+                        )}
+                      </Field>
+                    );
+                  }}
+                </form.Field>
                 <div className="flex flex-col gap-2">
-                  <Label htmlFor="email">Email address</Label>
-                  <div className="relative">
-                    <Mail className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="you@example.com"
-                      className="pl-10"
-                      aria-invalid={status === "error"}
-                    />
-                  </div>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="password">Password</Label>
-                    {mode === "login" && (
-                      <Button
-                        type="button"
-                        variant="link"
-                        className="h-auto p-0 text-xs"
-                        onClick={() => setStatus("success")}
-                      >
-                        Forgot password?
-                      </Button>
-                    )}
-                  </div>
-                  <div className="relative">
-                    <LockKeyhole className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="••••••••"
-                      className="pl-10 pr-10"
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="absolute right-1 top-1/2 -translate-y-1/2"
-                      aria-label={
-                        showPassword ? "Hide password" : "Show password"
-                      }
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? <EyeOff /> : <Eye />}
-                    </Button>
-                  </div>
+                  <form.Field name="password">
+                    {(field) => {
+                      const isInvalid =
+                        field.state.meta.isTouched && !field.state.meta.isValid;
+                      return (
+                        <>
+                          <div className="flex items-center justify-between">
+                            <FieldLabel htmlFor="password">Password</FieldLabel>
+                            {mode === "login" && (
+                              <Button
+                                type="button"
+                                variant="link"
+                                className="h-auto p-0 text-xs"
+                                onClick={() => setStatus("success")}
+                              >
+                                Forgot password?
+                              </Button>
+                            )}
+                          </div>
+                          <Field>
+                            <div className="relative">
+                              <LockKeyhole className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                              <Input
+                                id={field.name}
+                                name={field.name}
+                                type={showPassword ? "text" : "password"}
+                                placeholder="••••••••"
+                                className="pl-10 pr-10"
+                                onBlur={field.handleBlur}
+                                autoComplete="off"
+                                onChange={(e) =>
+                                  field.handleChange(e.target.value)
+                                }
+                                aria-invalid={isInvalid}
+                              />
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="absolute right-1 top-1/2 -translate-y-1/2"
+                                aria-label={
+                                  showPassword
+                                    ? "Hide password"
+                                    : "Show password"
+                                }
+                                onBlur={field.handleBlur}
+                                onChange={(e) =>
+                                  field.handleChange(e.target.value)
+                                }
+                                onClick={() => setShowPassword(!showPassword)}
+                              >
+                                {showPassword ? <EyeOff /> : <Eye />}
+                              </Button>
+                            </div>
+
+                            {isInvalid && (
+                              <FieldError errors={field.state.meta.errors} />
+                            )}
+                          </Field>
+                        </>
+                      );
+                    }}
+                  </form.Field>
                 </div>
                 {mode === "register" && (
                   <>
@@ -229,18 +340,31 @@ export default function Auth() {
                         placeholder="Re-enter your password"
                       />
                     </div>
-                    <div className="flex flex-col gap-2">
-                      <Label htmlFor="role">I am joining as</Label>
-                      <Select value={role} onValueChange={setRole}>
-                        <SelectTrigger id="role">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="tenant">Tenant</SelectItem>
-                          <SelectItem value="owner">Owner</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                    <form.Field name="role">
+                      {(field) => {
+                        return (
+                          <div className="flex flex-col gap-2">
+                            <FieldLabel htmlFor="role">
+                              I am joining as
+                            </FieldLabel>
+                            <Select
+                              value={role}
+                              id={field.name}
+                              name={field.name}
+                              onValueChange={(val) => field.handleChange(val)}
+                            >
+                              <SelectTrigger id="role">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="TENANT">Tenant</SelectItem>
+                                <SelectItem value="OWNER">Owner</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        );
+                      }}
+                    </form.Field>
                     <p className="text-xs leading-5 text-muted-foreground">
                       By creating an account, you agree to Homiee&apos;s{" "}
                       <Button variant="link" className="h-auto p-0 text-xs">
@@ -255,9 +379,8 @@ export default function Auth() {
                   </>
                 )}
                 <Button
-                  type="button"
+                  type="submit"
                   className="mt-2 w-full"
-                  onClick={submit}
                   disabled={loading}
                 >
                   {loading && (
@@ -290,7 +413,7 @@ export default function Auth() {
                     </Button>
                   </>
                 )}
-              </div>
+              </form>
             </CardContent>
           </Card>
           <p className="mt-6 text-center text-sm text-muted-foreground">
