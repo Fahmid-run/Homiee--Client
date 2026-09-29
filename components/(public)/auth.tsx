@@ -34,9 +34,12 @@ import { useForm } from "@tanstack/react-form-nextjs";
 import { toast } from "../ui/toast";
 import { Field, FieldError, FieldLabel } from "../ui/field";
 import {
+  FormValues,
   LoginZodSchema,
   RegistrationZodSchema,
 } from "@/Validation/form/auth.validator";
+import { useLogin, useRegister } from "@/hooks";
+import z from "zod";
 
 export default function Auth() {
   const [mode, setMode] = useState<"login" | "register">("login");
@@ -53,32 +56,62 @@ export default function Auth() {
     form.reset();
   }
 
+  const { mutate: login, isPending: loginPending } = useLogin();
+  const { mutate: register, isPending: registerPending } = useRegister();
+
   const form = useForm({
     defaultValues: {
       name: "",
       email: "",
       password: "",
-      role: "",
-    },
+      role: "TENANT",
+    } as FormValues,
     validators: {
-      onSubmit: mode === "login" ? LoginZodSchema : RegistrationZodSchema,
+      onSubmit: ({ value }) => {
+        const schema =
+          mode === "login" ? LoginZodSchema : RegistrationZodSchema;
+        const result = schema.safeParse(value);
+
+        if (!result.success) {
+          return result.error;
+        }
+      },
     },
     onSubmit: async ({ value }) => {
-      console.log(value);
+      const loginData = {
+        email: value.email,
+        password: value.password,
+      };
+
+      const registerData = {
+        name: value.name,
+        email: value.email,
+        password: value.password,
+        role: value.role,
+      };
 
       setLoading(true);
       setStatus("idle");
 
       try {
         if (mode === "login") {
-          // API Call for login (e.g., authService.login(value.email, value.password))
-          console.log("Login Payload:", {
-            email: value.email,
-            password: value.password,
+          login(loginData, {
+            onSuccess: (res) => {
+              console.log(res);
+            },
+            onError: (err) => {
+              console.log(err);
+            },
           });
         } else {
-          // API Call for register
-          console.log("Register Payload:", value);
+          register(registerData, {
+            onSuccess: (res) => {
+              console.log(res);
+            },
+            onError: (err) => {
+              console.log(err);
+            },
+          });
         }
 
         setStatus("success");
@@ -91,6 +124,7 @@ export default function Auth() {
         });
       } catch (error) {
         setStatus("error");
+        console.log(error);
       } finally {
         setLoading(false);
       }
