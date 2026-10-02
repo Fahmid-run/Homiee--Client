@@ -39,14 +39,15 @@ import {
   RegistrationZodSchema,
 } from "@/Validation/form/auth.validator";
 import { useLogin, useRegister } from "@/hooks";
-import z from "zod";
+import { getErrorMessage } from "@/lib/getErrorMessage";
 
 export default function Auth() {
   const [mode, setMode] = useState<"login" | "register">("login");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState<"idle" | "error" | "success">("idle");
-  const [role, setRole] = useState("TENANT");
+  const [status, setStatus] = useState<"idle" | "error" | "success" | String>(
+    "idle",
+  );
 
   function switchMode(nextMode: "login" | "register") {
     setMode(nextMode);
@@ -67,15 +68,10 @@ export default function Auth() {
       role: "TENANT",
     } as FormValues,
     validators: {
-      onSubmit: ({ value }) => {
-        const schema =
-          mode === "login" ? LoginZodSchema : RegistrationZodSchema;
-        const result = schema.safeParse(value);
-
-        if (!result.success) {
-          return result.error;
-        }
-      },
+      onSubmit: mode === "login" ? LoginZodSchema : RegistrationZodSchema,
+    },
+    onSubmitInvalid: ({ value, formApi }) => {
+      console.log("INVALID", value, formApi.state.errors);
     },
     onSubmit: async ({ value }) => {
       const loginData = {
@@ -97,7 +93,10 @@ export default function Auth() {
         if (mode === "login") {
           login(loginData, {
             onSuccess: (res) => {
-              console.log(res);
+              toast.add({
+                title: "Logged in successfully",
+                type: "success",
+              });
             },
             onError: (err) => {
               console.log(err);
@@ -106,22 +105,17 @@ export default function Auth() {
         } else {
           register(registerData, {
             onSuccess: (res) => {
-              console.log(res);
+              setStatus("success");
+              toast.add({
+                title: "Account created successfully",
+                type: "success",
+              });
             },
             onError: (err) => {
-              console.log(err);
+              setStatus(getErrorMessage(err));
             },
           });
         }
-
-        setStatus("success");
-        toast.add({
-          title:
-            mode === "login"
-              ? "Logged in successfully"
-              : "Account created successfully",
-          type: "success",
-        });
       } catch (error) {
         setStatus("error");
         console.log(error);
@@ -146,7 +140,7 @@ export default function Auth() {
           <div className="flex size-10 items-center justify-center rounded-xl bg-primary-foreground text-primary">
             <Home data-icon="inline-start" />
           </div>
-          <span className="text-xl font-semibold tracking-tight">homiee</span>
+          <span className="text-xl font-semibold tracking-tight">Homiee</span>
         </div>
         <div className="relative max-w-lg pb-10">
           <p className="mb-5 text-sm font-medium uppercase tracking-[0.2em] text-primary-foreground/60">
@@ -257,6 +251,7 @@ export default function Auth() {
                               placeholder="Olivia Martin"
                               className="pl-10"
                               onBlur={field.handleBlur}
+                              value={field.state.value}
                               autoComplete="off"
                               onChange={(e) =>
                                 field.handleChange(e.target.value)
@@ -286,6 +281,7 @@ export default function Auth() {
                             type="email"
                             placeholder="you@example.com"
                             className="pl-10"
+                            value={field.state.value}
                             aria-invalid={status === "error"}
                             onBlur={field.handleBlur}
                             autoComplete="off"
@@ -329,6 +325,7 @@ export default function Auth() {
                                 placeholder="••••••••"
                                 className="pl-10 pr-10"
                                 onBlur={field.handleBlur}
+                                value={field.state.value}
                                 autoComplete="off"
                                 onChange={(e) =>
                                   field.handleChange(e.target.value)
@@ -366,14 +363,37 @@ export default function Auth() {
                 </div>
                 {mode === "register" && (
                   <>
-                    <div className="flex flex-col gap-2">
-                      <Label htmlFor="confirm-password">Confirm password</Label>
-                      <Input
-                        id="confirm-password"
-                        type="password"
-                        placeholder="Re-enter your password"
-                      />
-                    </div>
+                    <form.Field name="confirmPassword">
+                      {(field) => {
+                        const isInvalid =
+                          field.state.meta.isTouched &&
+                          !field.state.meta.isValid;
+                        return (
+                          <Field>
+                            <div className="flex flex-col gap-2">
+                              <FieldLabel htmlFor="confirm-password">
+                                Confirm password
+                              </FieldLabel>
+                              <Input
+                                id="confirm-password"
+                                onBlur={field.handleBlur}
+                                value={field.state.value}
+                                autoComplete="off"
+                                type="password"
+                                onChange={(e) =>
+                                  field.handleChange(e.target.value)
+                                }
+                                aria-invalid={isInvalid}
+                                placeholder="Re-enter your password"
+                              />
+                            </div>
+                            {isInvalid && (
+                              <FieldError errors={field.state.meta.errors} />
+                            )}
+                          </Field>
+                        );
+                      }}
+                    </form.Field>
                     <form.Field name="role">
                       {(field) => {
                         return (
@@ -382,7 +402,7 @@ export default function Auth() {
                               I am joining as
                             </FieldLabel>
                             <Select
-                              value={role}
+                              value={field.state.value}
                               id={field.name}
                               name={field.name}
                               onValueChange={(val) => field.handleChange(val)}
