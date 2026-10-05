@@ -68,7 +68,16 @@ export default function Auth() {
       role: "TENANT",
     } as FormValues,
     validators: {
-      onSubmit: mode === "login" ? LoginZodSchema : RegistrationZodSchema,
+      onSubmit: ({ value }) => {
+        const schema =
+          mode === "login" ? LoginZodSchema : RegistrationZodSchema;
+        const result = schema.safeParse(value);
+
+        if (!result.success) {
+          return result.error.issues.map((issue) => issue.message).join(", ");
+        }
+        return null;
+      },
     },
     onSubmitInvalid: ({ value, formApi }) => {
       console.log("INVALID", value, formApi.state.errors);

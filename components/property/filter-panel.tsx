@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 
 export interface Filters {
-  location: string;
+  address: string;
   minPrice: number;
   maxPrice: number;
   propertyType: string;
@@ -46,9 +46,9 @@ export default function FilterPanel({
   onClearFilters,
 }: FilterPanelProps) {
   const [expanded, setExpanded] = useState({
-    location: true,
-    price: true,
-    type: true,
+    city: true,
+    // price: true,
+    // type: true,
     rooms: true,
     availability: true,
   });
@@ -79,18 +79,18 @@ export default function FilterPanel({
 
       <FilterSection
         title="Location"
-        open={expanded.location}
-        onToggle={() => toggle("location")}
+        open={expanded.city}
+        onToggle={() => toggle("city")}
       >
         <div className="flex flex-col gap-2.5">
-          {LOCATIONS.map((location) => (
+          {LOCATIONS.map((city) => (
             <CheckRow
-              key={location}
-              label={location}
-              checked={filters.location === location}
+              key={city}
+              label={city}
+              checked={filters.address === city}
               onChange={() =>
                 update({
-                  location: filters.location === location ? "" : location,
+                  address: filters.address === city ? "" : city,
                 })
               }
             />
@@ -98,7 +98,7 @@ export default function FilterPanel({
         </div>
       </FilterSection>
 
-      <FilterSection
+      {/* <FilterSection
         title="Monthly budget"
         open={expanded.price}
         onToggle={() => toggle("price")}
@@ -141,9 +141,9 @@ export default function FilterPanel({
             />
           </div>
         </div>
-      </FilterSection>
+      </FilterSection> */}
 
-      <FilterSection
+      {/* <FilterSection
         title="Property type"
         open={expanded.type}
         onToggle={() => toggle("type")}
@@ -162,7 +162,7 @@ export default function FilterPanel({
             />
           ))}
         </div>
-      </FilterSection>
+      </FilterSection> */}
 
       <FilterSection
         title="Number of rooms"

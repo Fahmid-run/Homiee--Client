@@ -31,6 +31,7 @@ import {
 import FilterPanel, { Filters } from "@/components/property/filter-panel";
 import PropertyCard from "@/components/property/property-card";
 import SortDropdown from "@/components/property/sort-dropdown";
+import { useGetProperties } from "@/hooks/properties.hook";
 
 const properties = [
   {
@@ -106,7 +107,7 @@ const properties = [
   },
 ];
 const initialFilters: Filters = {
-  location: "",
+  address: "",
   minPrice: 0,
   maxPrice: 10000,
   propertyType: "",
@@ -127,33 +128,50 @@ export default function PropertiesPage() {
     setSort("relevance");
     setPage(1);
   };
-  const results = useMemo(() => {
-    const filtered = properties.filter(
-      (property) =>
-        (!filters.location || property.location === filters.location) &&
-        property.price >= filters.minPrice &&
-        property.price <= filters.maxPrice &&
-        (!filters.propertyType ||
-          property.propertyType === filters.propertyType) &&
-        (!filters.rooms || property.availableRooms >= filters.rooms) &&
-        (!query ||
-          `${property.name} ${property.location} ${property.description}`
-            .toLowerCase()
-            .includes(query.toLowerCase())),
-    );
-    return [...filtered].sort((a, b) =>
-      sort === "price-low"
-        ? a.price - b.price
-        : sort === "price-high"
-          ? b.price - a.price
-          : sort === "newest"
-            ? b.id - a.id
-            : a.id - b.id,
-    );
-  }, [filters, query, sort]);
-  const totalPages = Math.max(1, Math.ceil(results.length / perPage));
-  const visible = results.slice((page - 1) * perPage, page * perPage);
 
+  const { isPending, isError, data, error } = useGetProperties();
+  const propertiesData = data?.data?.data;
+
+  console.log(data?.data?.data);
+
+  // const results = useMemo(() => {
+  //   if (!propertiesData || !Array.isArray(propertiesData)) {
+  //     return [];
+  //   }
+  //   const filtered = propertiesData.filter(
+  //     (property) =>
+  //       (!filters.address || property.address === filters.address) &&
+  //       property.price >= filters.minPrice &&
+  //       property.price <= filters.maxPrice &&
+  //       (!filters.propertyType ||
+  //         property.propertyType === filters.propertyType) &&
+  //       (!filters.rooms || property.availableRooms >= filters.rooms) &&
+  //       (!query ||
+  //         `${property.name} ${property.location} ${property.description}`
+  //           .toLowerCase()
+  //           .includes(query.toLowerCase())),
+  //   );
+  //   return [...filtered].sort((a, b) =>
+  //     sort === "price-low"
+  //       ? a.price - b.price
+  //       : sort === "price-high"
+  //         ? b.price - a.price
+  //         : sort === "newest"
+  //           ? b.id - a.id
+  //           : a.id - b.id,
+  //   );
+  // }, [filters, query, sort, propertiesData]);
+  // const totalPages = Math.max(1, Math.ceil(results.length / perPage));
+  // const visible = results.slice((page - 1) * perPage, page * perPage);
+
+  // console.log("visible data>>", visible);
+  if (isPending) {
+    return <span>Loading...</span>;
+  }
+
+  if (isError) {
+    return <span>Error: {error.message}</span>;
+  }
   return (
     <main className="min-h-screen bg-muted/30">
       <header className="border-b bg-background">
@@ -204,7 +222,7 @@ export default function PropertiesPage() {
             <div className="flex items-center gap-3">
               <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
                 <SheetTrigger asChild>
-                  <Button variant="outline" className="lg:hidden">
+                  <Button variant="outline" className="lg:hidden ">
                     <SlidersHorizontal data-icon="inline-start" /> Filters
                   </Button>
                 </SheetTrigger>
@@ -232,7 +250,7 @@ export default function PropertiesPage() {
               </Sheet>
               <p className="text-sm text-muted-foreground">
                 <span className="font-medium text-foreground">
-                  {results.length}
+                  {propertiesData.length}
                 </span>{" "}
                 properties found
               </p>
@@ -245,9 +263,9 @@ export default function PropertiesPage() {
               }}
             />
           </div>
-          {visible.length ? (
+          {propertiesData.length ? (
             <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {visible.map((property) => (
+              {propertiesData.map((property) => (
                 <PropertyCard key={property.id} property={property} />
               ))}
             </div>
@@ -267,7 +285,7 @@ export default function PropertiesPage() {
               </EmptyContent>
             </Empty>
           )}
-          {results.length > perPage && (
+          {propertiesData.length > perPage && (
             <Pagination className="mt-10">
               <PaginationContent>
                 <PaginationItem>
