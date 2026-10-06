@@ -31,7 +31,7 @@ import {
 import FilterPanel, { Filters } from "@/components/property/filter-panel";
 import PropertyCard from "@/components/property/property-card";
 import SortDropdown from "@/components/property/sort-dropdown";
-import { useGetProperties } from "@/hooks/properties.hook";
+import { useGetAllProperties } from "@/hooks/properties.hook";
 
 const properties = [
   {
@@ -129,7 +129,7 @@ export default function PropertiesPage() {
     setPage(1);
   };
 
-  const { isPending, isError, data, error } = useGetProperties();
+  const { isPending, isError, data, error } = useGetAllProperties();
   const propertiesData = data?.data?.data;
 
   console.log(data?.data?.data);

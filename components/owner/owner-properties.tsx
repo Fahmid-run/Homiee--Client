@@ -71,6 +71,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { useCreateProperty } from "@/hooks/properties.hook";
+import { useForm } from "@tanstack/react-form-nextjs";
+import { toast } from "../ui/toast";
+import { getErrorMessage } from "@/lib/getErrorMessage";
 
 const initialProperties = [
   {
@@ -110,23 +114,14 @@ export default function OwnerProperties() {
   const [open, setOpen] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
-  const [images, setImages] = useState<string[]>([]);
-  const [form, setForm] = useState({
-    name: "",
-    description: "",
-    type: "",
-    address: "",
-    city: "",
-    area: "",
-    rooms: "",
-    amenities: "",
-  });
+  const [status, setStatus] = useState<"idle" | "error" | "success" | String>(
+    "idle",
+  );
 
-  function update(key: keyof typeof form, value: string) {
-    setForm((current) => ({ ...current, [key]: value }));
-    setSaved(false);
-    setError("");
-  }
+  const [loading, setLoading] = useState(false);
+
+  const [images, setImages] = useState<string[]>([]);
+
   const isDirty = Object.values(form).some(Boolean) || images.length > 0;
   useEffect(() => {
     const warn = (event: BeforeUnloadEvent) => {
@@ -159,38 +154,52 @@ export default function OwnerProperties() {
       return;
     setOpen(nextOpen);
   }
-  function submit() {
-    if (
-      !form.name ||
-      !form.type ||
-      !form.address ||
-      !form.city ||
-      !form.rooms
-    ) {
-      setError("Complete the required fields before saving.");
-      return;
-    }
-    setProperties((current) => [
-      {
-        name: form.name,
-        location: `${form.area ? `${form.area}, ` : ""}${form.city}`,
-        type: form.type,
-        rooms: Number(form.rooms),
-        available: Number(form.rooms),
-        occupied: 0,
-        status: "Draft",
-        image: images[0] || "/property-1.png",
-      },
-      ...current,
-    ]);
-    setSaved(true);
-    setTimeout(() => setOpen(false), 700);
-  }
-  function removeProperty(name: string) {
-    setProperties((current) =>
-      current.filter((property) => property.name !== name),
-    );
-  }
+
+  const { mutate: createProperty, isPending } = useCreateProperty();
+
+  const form = useForm({
+    defaultValues: {
+      name: "",
+      address: "",
+      description: "",
+      city: "",
+      totalrooms: "",
+    },
+    validators: {},
+    onSubmitInvalid: ({ value, formApi }) => {
+      console.log("Error>>", value, formApi.state.errors);
+    },
+    onSubmit: async ({ value }) => {
+      const propertyData = {
+        name: value.name,
+        address: value.address,
+        description: value.description,
+        city: value.city,
+        totalrooms: value.totalrooms,
+      };
+
+      setLoading(true);
+
+      try {
+        createProperty(propertyData, {
+          onSuccess: (res) => {
+            setStatus("success");
+            toast.add({
+              title: "Property Created successfully",
+              type: "success",
+            });
+          },
+          onError: (err) => {
+            setStatus(getErrorMessage(err));
+          },
+        });
+      } catch (error) {
+        setError(getErrorMessage(error));
+      } finally {
+        setLoading(false);
+      }
+    },
+  });
 
   return (
     <main className="min-h-screen bg-muted/30 text-foreground">
@@ -265,7 +274,7 @@ export default function OwnerProperties() {
                         }
                       />
                     </Field>
-                    <Field>
+                    {/* <Field>
                       <FieldLabel>
                         Property type{" "}
                         <span className="text-destructive">*</span>
@@ -287,7 +296,7 @@ export default function OwnerProperties() {
                           </SelectGroup>
                         </SelectContent>
                       </Select>
-                    </Field>
+                    </Field> */}
                   </FieldGroup>
                 </FieldSet>
                 <Separator />
@@ -302,9 +311,7 @@ export default function OwnerProperties() {
                         id="address"
                         placeholder="Street address"
                         value={form.address}
-                        onChange={(event) =>
-                          update("address", event.target.value)
-                        }
+                        onChange={(event) => {}}
                       />
                     </Field>
                     <div className="grid gap-4 sm:grid-cols-2">
@@ -321,7 +328,7 @@ export default function OwnerProperties() {
                           }
                         />
                       </Field>
-                      <Field>
+                      {/* <Field>
                         <FieldLabel htmlFor="area">
                           Area or neighborhood
                         </FieldLabel>
@@ -333,7 +340,7 @@ export default function OwnerProperties() {
                             update("area", event.target.value)
                           }
                         />
-                      </Field>
+                      </Field> */}
                     </div>
                   </FieldGroup>
                 </FieldSet>
@@ -350,13 +357,13 @@ export default function OwnerProperties() {
                         type="number"
                         min="1"
                         placeholder="12"
-                        value={form.rooms}
+                        value={form.totalrooms}
                         onChange={(event) =>
-                          update("rooms", event.target.value)
+                          update("totalrooms", event.target.value)
                         }
                       />
                     </Field>
-                    <Field>
+                    {/* <Field>
                       <FieldLabel htmlFor="amenities">Amenities</FieldLabel>
                       <Input
                         id="amenities"
@@ -369,7 +376,7 @@ export default function OwnerProperties() {
                       <FieldDescription>
                         Add the features renters will care about most.
                       </FieldDescription>
-                    </Field>
+                    </Field> */}
                   </FieldGroup>
                 </FieldSet>
                 <Separator />
@@ -437,7 +444,7 @@ export default function OwnerProperties() {
                 <Button variant="outline" onClick={() => setOpen(false)}>
                   Cancel
                 </Button>
-                <Button onClick={submit}>
+                <Button>
                   {saved ? (
                     <>
                       <Check data-icon="inline-start" />
@@ -566,7 +573,7 @@ export default function OwnerProperties() {
                           <p className="font-medium">{property.name}</p>
                           <PropertyActions
                             name={property.name}
-                            onDelete={() => removeProperty(property.name)}
+                            onDelete={() => {}}
                           />
                         </div>
                         <p className="mt-1 truncate text-xs text-muted-foreground">
