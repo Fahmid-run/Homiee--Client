@@ -12,3 +12,7 @@ export function userRegister(payload: {
 }) {
   return apiClient("/auth/register", { method: "POST", body: payload });
 }
+
+export function userGetMe() {
+  return apiClient("/auth/me");
+}

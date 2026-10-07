@@ -1,5 +1,5 @@
-import { userLogin, userRegister } from "@/features/auth/api";
-import { useMutation } from "@tanstack/react-query";
+import { userGetMe, userLogin, userRegister } from "@/features/auth/api";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 export function useLogin() {
   return useMutation({
@@ -10,5 +10,13 @@ export function useLogin() {
 export function useRegister() {
   return useMutation({
     mutationFn: userRegister,
+  });
+}
+
+export function useGetMe() {
+  return useQuery({
+    queryKey: ["User-Token"],
+    queryFn: userGetMe,
+    retry: false,
   });
 }
