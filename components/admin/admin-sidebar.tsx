@@ -13,7 +13,20 @@ import {
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback } from "../ui/avatar";
+import { toast } from "../ui/toast";
+import { logout } from "@/utils/logout";
+import { useRouter } from "next/navigation";
 function AdminSidebar({ children }: { children: ReactNode }) {
+  const router = useRouter();
+  const handleLogout = async () => {
+    await logout();
+    toast.add({
+      type: "sucess",
+      description: "Logout Success!!",
+    });
+
+    router.push("/auth");
+  };
   return (
     <div className="min-h-screen bg-muted/20 text-foreground">
       <div className="flex min-h-screen">
@@ -55,7 +68,11 @@ function AdminSidebar({ children }: { children: ReactNode }) {
               <UserRound data-icon="inline-start" />
               Profile
             </Button>
-            <Button variant="ghost" className="justify-start gap-3">
+            <Button
+              variant="ghost"
+              className="justify-start gap-3"
+              onClick={handleLogout}
+            >
               <LogOut data-icon="inline-start" />
               Logout
             </Button>
