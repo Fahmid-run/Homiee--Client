@@ -1,12 +1,35 @@
+"use client";
+import AuthLoader from "@/components/auth/auth-loader";
 import RentalDocuments from "@/components/shared/rental-document";
-import React from "react";
+import { useGetMe } from "@/hooks";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
-const DocumentUpload = () => {
+const documentUpload = () => {
+  const { data, isError, isPending } = useGetMe();
+
+  const user = data?.data;
+
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isPending) {
+      return;
+    }
+    if (isError || !user) {
+      router.replace("/auth");
+    }
+  }, [isError, isPending, user]);
+
+  if (isPending) {
+    return <AuthLoader></AuthLoader>;
+  }
+
   return (
     <div>
-      <RentalDocuments></RentalDocuments>
+      <RentalDocuments role={user.role}></RentalDocuments>
     </div>
   );
 };
 
-export default DocumentUpload;
+export default documentUpload;

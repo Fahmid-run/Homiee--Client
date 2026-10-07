@@ -134,22 +134,7 @@ function UploadPanel({ onUpload }: { onUpload: (file: File) => void }) {
               placeholder="e.g. Lease agreement"
             />
           </div>
-          <div className="grid gap-2">
-            <Label>Rental</Label>
-            <Select defaultValue="maple">
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="maple">
-                  Maple Heights · Alex Johnson
-                </SelectItem>
-                <SelectItem value="river">
-                  Riverside Studios · Maya Chen
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+
           <div className="grid gap-2 sm:col-span-2">
             <Label htmlFor="description">
               Description{" "}
@@ -317,68 +302,64 @@ function DocumentTable({
   );
 }
 
-export default function RentalDocuments() {
+export default function RentalDocuments({ role }) {
   const [docs, setDocs] = useState(initialDocs);
   const [mode, setMode] = useState("owner");
   const visibleDocs = useMemo(
     () =>
-      mode === "tenant"
+      mode === "TENANT"
         ? docs.filter((doc) => doc.property === "Maple Heights Residence")
         : docs,
     [docs, mode],
   );
   return (
-    <main className="min-h-screen bg-muted/20 text-foreground">
-      <header className="border-b border-border/70 bg-background">
-        <div className="mx-auto max-w-7xl px-5 py-7 sm:px-8">
-          <p className="text-sm text-muted-foreground">
-            Homiee workspace / Rental documents
-          </p>
-          <div className="mt-2 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-            <div>
-              <h1 className="text-3xl font-semibold tracking-tight">
-                Rental documents
-              </h1>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Keep every important rental file in one secure place.
-              </p>
+    <main className="min-h-screen bg-muted/30 text-foreground ">
+      <div className="lg:pl-72">
+        <header className="border-b border-border/70 bg-background">
+          <div className="mx-auto max-w-7xl px-5 py-7 sm:px-8">
+            <p className="text-sm text-muted-foreground">
+              Homiee workspace / Rental documents
+            </p>
+            <div className="mt-2 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+              <div>
+                <h1 className="text-3xl font-semibold tracking-tight">
+                  Rental documents
+                </h1>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Keep every important rental file in one secure place.
+                </p>
+              </div>
             </div>
-            <Tabs value={mode} onValueChange={setMode}>
-              <TabsList>
-                <TabsTrigger value="owner">Owner view</TabsTrigger>
-                <TabsTrigger value="tenant">Tenant view</TabsTrigger>
-              </TabsList>
-            </Tabs>
           </div>
-        </div>
-      </header>
-      <div className="mx-auto grid max-w-7xl gap-6 p-5 sm:p-8">
-        {mode === "owner" && (
-          <UploadPanel
-            onUpload={(file) =>
-              setDocs((current) => [
-                {
-                  id: Date.now(),
-                  name: file.name,
-                  type: "Rental document",
-                  date: "Today",
-                  property: "Maple Heights Residence",
-                  tenant: "Alex Johnson",
-                  size: `${(file.size / 1024 / 1024).toFixed(1)} MB`,
-                  kind: file.type.startsWith("image") ? "image" : "pdf",
-                },
-                ...current,
-              ])
+        </header>
+        <div className="mx-auto grid max-w-7xl gap-6 p-5 sm:p-8">
+          {role === "PROPERTY_OWNER" && (
+            <UploadPanel
+              onUpload={(file) =>
+                setDocs((current) => [
+                  {
+                    id: Date.now(),
+                    name: file.name,
+                    type: "Rental document",
+                    date: "Today",
+                    property: "Maple Heights Residence",
+                    tenant: "Alex Johnson",
+                    size: `${(file.size / 1024 / 1024).toFixed(1)} MB`,
+                    kind: file.type.startsWith("image") ? "image" : "pdf",
+                  },
+                  ...current,
+                ])
+              }
+            />
+          )}
+          <DocumentTable
+            docs={visibleDocs}
+            tenant={mode === "TENANT"}
+            onDelete={(id) =>
+              setDocs((current) => current.filter((doc) => doc.id !== id))
             }
           />
-        )}
-        <DocumentTable
-          docs={visibleDocs}
-          tenant={mode === "tenant"}
-          onDelete={(id) =>
-            setDocs((current) => current.filter((doc) => doc.id !== id))
-          }
-        />
+        </div>
       </div>
     </main>
   );

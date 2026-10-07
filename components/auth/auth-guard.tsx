@@ -24,9 +24,5 @@ export const AuthGuard = ({ children }: { children: ReactNode }) => {
     return <AuthLoader />;
   }
 
-  if (!user) {
-    return null; // Prevents flashing content while redirecting
-  }
-
   return <div>{children}</div>;
 };

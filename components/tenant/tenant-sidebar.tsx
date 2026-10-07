@@ -23,16 +23,17 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "../ui/toast";
 import { useRouter } from "next/navigation";
 import { logout } from "@/utils/logout";
+import Link from "next/link";
 
 const navItems = [
-  { label: "Dashboard", icon: LayoutDashboard, active: true },
-  { label: "Properties", icon: Home },
-  { label: "Visit Requests", icon: Search, count: "2" },
-  { label: "Applications", icon: FileText },
-  { label: "My Rental", icon: WalletCards },
-  { label: "Payments", icon: CircleDollarSign },
-  { label: "Bills", icon: Receipt, count: "1" },
-  { label: "Documents", icon: FileText },
+  { label: "Dashboard", icon: LayoutDashboard, active: true, to: "/" },
+  { label: "Properties", icon: Home, to: "/" },
+  { label: "Visit Requests", icon: Search, count: "2", to: "/" },
+  { label: "Applications", icon: FileText, to: "/" },
+  { label: "My Rental", icon: WalletCards, to: "/" },
+  { label: "Payments", icon: CircleDollarSign, to: "/" },
+  { label: "Bills", icon: Receipt, count: "1", to: "/" },
+  { label: "Documents", icon: FileText, to: "/documents" },
 ];
 
 function TenantSidebar({ children }: { children: ReactNode }) {
@@ -72,20 +73,22 @@ function TenantSidebar({ children }: { children: ReactNode }) {
             <p className="mb-3 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Workspace
             </p>
-            {navItems.map(({ label, icon: Icon, active, count }) => (
-              <Button
-                key={label}
-                variant={active ? "secondary" : "ghost"}
-                className={`justify-start gap-3 ${active ? "font-semibold text-primary" : "text-muted-foreground"}`}
-              >
-                <Icon data-icon="inline-start" />
-                {label}
-                {count && (
-                  <Badge variant="outline" className="ml-auto">
-                    {count}
-                  </Badge>
-                )}
-              </Button>
+            {navItems.map(({ label, icon: Icon, active, count, to }) => (
+              <Link href={`/tenant${to}`}>
+                <Button
+                  key={label}
+                  variant={active ? "secondary" : "ghost"}
+                  className={`justify-start gap-3 ${active ? "font-semibold text-primary" : "text-muted-foreground"}`}
+                >
+                  <Icon data-icon="inline-start" />
+                  {label}
+                  {count && (
+                    <Badge variant="outline" className="ml-auto">
+                      {count}
+                    </Badge>
+                  )}
+                </Button>
+              </Link>
             ))}
             <Separator className="my-6" />
             <Button
