@@ -7,8 +7,10 @@ import {
   Activity,
   Bell,
   Building2,
+  Building2Icon,
   CalendarDays,
   Check,
+  CheckCircle2Icon,
   ChevronRight,
   CircleDollarSign,
   DoorOpen,
@@ -18,6 +20,7 @@ import {
   LogOut,
   Menu,
   Plus,
+  PlusIcon,
   Receipt,
   Settings,
   Users,
@@ -34,12 +37,29 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { z } from "zod";
+
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import {
   Table,
@@ -49,6 +69,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useForm } from "@tanstack/react-form-nextjs";
+import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
+import {
+  propertySchema,
+  PropertyValues,
+} from "@/Validation/form/property.validator";
+import { toast } from "../ui/toast";
+import { useCreateNewProperty } from "@/hooks/tenant.hook";
+import { getErrorMessage } from "@/lib/getErrorMessage";
 
 const properties = [
   {
@@ -118,6 +148,14 @@ const chartData = [
   { month: "Sep", expected: 23000, collected: 22600 },
   { month: "Oct", expected: 23000, collected: 19800 },
 ];
+
+const defaultValues: PropertyValues = {
+  name: "",
+  address: "",
+  description: "",
+  city: "",
+  totalrooms: 1,
+};
 const chartConfig = {
   expected: { label: "Expected rent", color: "var(--chart-2)" },
   collected: { label: "Collected rent", color: "var(--chart-1)" },
@@ -126,6 +164,54 @@ const chartConfig = {
 export default function OwnerDashboard() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [reviewed, setReviewed] = useState<string[]>([]);
+
+  const [open, setOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+
+  const { mutate: createProperty, isPending } = useCreateNewProperty();
+
+  const form = useForm({
+    defaultValues,
+    validators: {
+      onSubmit: ({ value }) => {
+        const result = propertySchema.safeParse(value);
+
+        if (!result.success) {
+          return result.error.issues.map((issue) => issue.message).join(", ");
+        }
+        return null;
+      },
+    },
+    onSubmit: async ({ value }) => {
+      const data = {
+        name: value.name,
+        address: value.address,
+        description: value.description,
+        city: value.city,
+        totalrooms: value.totalrooms,
+      };
+
+      createProperty(data, {
+        onSuccess: (res) => {
+          console.log("created");
+          toast.add({
+            title: "Property Created!!",
+            type: "success",
+          });
+        },
+        onError: (err) => {
+          toast.add({
+            title: getErrorMessage(err),
+            type: "error",
+          });
+        },
+      });
+
+      form.reset();
+      setOpen(false);
+    },
+  });
+
   return (
     <main className="min-h-screen bg-muted/30 text-foreground">
       <div className="lg:pl-72">
@@ -174,10 +260,246 @@ export default function OwnerDashboard() {
               </h2>
             </div>
             <div className="flex flex-wrap gap-2">
-              <Button>
-                <Plus data-icon="inline-start" />
-                Add property
-              </Button>
+              <div className="flex flex-col items-end gap-2">
+                <Dialog
+                  open={open}
+                  onOpenChange={(nextOpen) => {
+                    setOpen(nextOpen);
+                    if (nextOpen) setSuccessMessage("");
+                  }}
+                >
+                  <DialogTrigger
+                    render={
+                      <Button>
+                        <PlusIcon data-icon="inline-start" />
+                        Add property
+                      </Button>
+                    }
+                  />
+                  <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+                    <DialogHeader>
+                      <DialogTitle className="flex items-center gap-2">
+                        <Building2Icon className="size-4" /> Add a property
+                      </DialogTitle>
+                      <DialogDescription>
+                        Add the basic details for a new rental property to your
+                        dashboard.
+                      </DialogDescription>
+                    </DialogHeader>
+
+                    <form
+                      className="flex flex-col gap-4"
+                      onSubmit={(event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        void form.handleSubmit();
+                      }}
+                    >
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <form.Field name="name">
+                          {(field) => {
+                            const isInvalid =
+                              field.state.meta.isTouched &&
+                              !field.state.meta.isValid;
+                            return (
+                              <Field>
+                                <FieldLabel htmlFor={field.name}>
+                                  Name
+                                </FieldLabel>
+                                <Input
+                                  id={field.name}
+                                  name={field.name}
+                                  value={field.state.value}
+                                  onBlur={field.handleBlur}
+                                  onChange={(event) =>
+                                    field.handleChange(event.target.value)
+                                  }
+                                  aria-invalid={
+                                    field.state.meta.isTouched &&
+                                    !field.state.meta.isValid
+                                  }
+                                  placeholder="Maple Court Residences"
+                                />
+                                {isInvalid && (
+                                  <FieldError
+                                    errors={field.state.meta.errors}
+                                  />
+                                )}
+                              </Field>
+                            );
+                          }}
+                        </form.Field>
+                        <form.Field name="city">
+                          {(field) => {
+                            const isInvalid =
+                              field.state.meta.isTouched &&
+                              !field.state.meta.isValid;
+                            return (
+                              <Field
+                                data-invalid={
+                                  field.state.meta.isTouched &&
+                                  !field.state.meta.isValid
+                                }
+                              >
+                                <FieldLabel htmlFor={field.name}>
+                                  City
+                                </FieldLabel>
+                                <Input
+                                  id={field.name}
+                                  name={field.name}
+                                  value={field.state.value}
+                                  onBlur={field.handleBlur}
+                                  onChange={(event) =>
+                                    field.handleChange(event.target.value)
+                                  }
+                                  aria-invalid={
+                                    field.state.meta.isTouched &&
+                                    !field.state.meta.isValid
+                                  }
+                                  placeholder="Brooklyn"
+                                />
+                                {isInvalid && (
+                                  <FieldError
+                                    errors={field.state.meta.errors}
+                                  />
+                                )}
+                              </Field>
+                            );
+                          }}
+                        </form.Field>
+                      </div>
+
+                      <form.Field name="address">
+                        {(field) => {
+                          const isInvalid =
+                            field.state.meta.isTouched &&
+                            !field.state.meta.isValid;
+                          return (
+                            <Field
+                              data-invalid={
+                                field.state.meta.isTouched &&
+                                !field.state.meta.isValid
+                              }
+                            >
+                              <FieldLabel htmlFor={field.name}>
+                                Address
+                              </FieldLabel>
+                              <Input
+                                id={field.name}
+                                name={field.name}
+                                value={field.state.value}
+                                onBlur={field.handleBlur}
+                                onChange={(event) =>
+                                  field.handleChange(event.target.value)
+                                }
+                                aria-invalid={
+                                  field.state.meta.isTouched &&
+                                  !field.state.meta.isValid
+                                }
+                                placeholder="128 Elmwood Avenue"
+                              />
+                              {isInvalid && (
+                                <FieldError errors={field.state.meta.errors} />
+                              )}
+                            </Field>
+                          );
+                        }}
+                      </form.Field>
+
+                      <form.Field name="description">
+                        {(field) => {
+                          const isInvalid =
+                            field.state.meta.isTouched &&
+                            !field.state.meta.isValid;
+                          return (
+                            <Field
+                              data-invalid={
+                                field.state.meta.isTouched &&
+                                !field.state.meta.isValid
+                              }
+                            >
+                              <FieldLabel htmlFor={field.name}>
+                                Description
+                              </FieldLabel>
+                              <Textarea
+                                id={field.name}
+                                name={field.name}
+                                value={field.state.value}
+                                onBlur={field.handleBlur}
+                                onChange={(event) =>
+                                  field.handleChange(event.target.value)
+                                }
+                                aria-invalid={
+                                  field.state.meta.isTouched &&
+                                  !field.state.meta.isValid
+                                }
+                                placeholder="Tell tenants what makes this property special."
+                                rows={3}
+                              />
+                              <FieldDescription>
+                                A short overview shown on the property record.
+                              </FieldDescription>
+                              {isInvalid && (
+                                <FieldError errors={field.state.meta.errors} />
+                              )}
+                            </Field>
+                          );
+                        }}
+                      </form.Field>
+
+                      <form.Field name="totalrooms">
+                        {(field) => {
+                          const isInvalid =
+                            field.state.meta.isTouched &&
+                            !field.state.meta.isValid;
+                          return (
+                            <Field
+                              data-invalid={
+                                field.state.meta.isTouched &&
+                                !field.state.meta.isValid
+                              }
+                            >
+                              <FieldLabel htmlFor={field.name}>
+                                Total rooms
+                              </FieldLabel>
+                              <Input
+                                id={field.name}
+                                name={field.name}
+                                type="number"
+                                min={1}
+                                step={1}
+                                value={field.state.value}
+                                onBlur={field.handleBlur}
+                                onChange={(event) =>
+                                  field.handleChange(Number(event.target.value))
+                                }
+                                aria-invalid={
+                                  field.state.meta.isTouched &&
+                                  !field.state.meta.isValid
+                                }
+                              />
+                              {isInvalid && (
+                                <FieldError errors={field.state.meta.errors} />
+                              )}
+                            </Field>
+                          );
+                        }}
+                      </form.Field>
+
+                      <DialogFooter>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setOpen(false)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button type="submit">Create property</Button>
+                      </DialogFooter>
+                    </form>
+                  </DialogContent>
+                </Dialog>
+              </div>
               <Button variant="outline">
                 <Receipt data-icon="inline-start" />
                 Create bill
