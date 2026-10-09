@@ -48,6 +48,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useGetTenantViewQRequests } from "@/hooks/tenant.hook";
+import { toast } from "../ui/toast";
+import { getErrorMessage } from "@/lib/getErrorMessage";
 
 type Status = "Pending" | "Accepted" | "Rejected";
 type Request = {
@@ -138,10 +141,7 @@ function EmptyRequests({ owner }: { owner: boolean }) {
   );
 }
 
-function TenantRequests() {
-  const tenantRequests = requests.filter(
-    (request) => request.tenant === "Alex Johnson",
-  );
+function TenantRequests({ tenantViewReqData }) {
   return (
     <Card>
       <CardHeader>
@@ -151,7 +151,7 @@ function TenantRequests() {
         </CardDescription>
       </CardHeader>
       <CardContent className="p-0">
-        {tenantRequests.length === 0 ? (
+        {tenantViewReqData.length === 0 ? (
           <EmptyRequests owner={false} />
         ) : (
           <div className="overflow-x-auto">
@@ -160,20 +160,19 @@ function TenantRequests() {
                 <TableRow>
                   <TableHead className="pl-6">Property</TableHead>
                   <TableHead>Requested date</TableHead>
-                  <TableHead>Owner</TableHead>
                   <TableHead>Request date</TableHead>
                   <TableHead className="pr-6">Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {tenantRequests.map((request) => (
-                  <TableRow key={request.id}>
+                {tenantViewReqData.map((request) => (
+                  <TableRow key={request?.id}>
                     <TableCell className="pl-6">
                       <Link
                         href="#property"
                         className="font-medium text-primary underline-offset-4 hover:underline"
                       >
-                        {request.property}
+                        {request?.property?.name}
                         <ExternalLink data-icon="inline-end" />
                       </Link>
                       <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
@@ -184,11 +183,10 @@ function TenantRequests() {
                     <TableCell>
                       <span className="flex items-center gap-2">
                         <CalendarDays data-icon="inline-start" />
-                        {request.requested}
+                        {request.requestedDate}
                       </span>
                     </TableCell>
-                    <TableCell>{request.owner}</TableCell>
-                    <TableCell>{request.created}</TableCell>
+                    <TableCell>{request.requested}</TableCell>
                     <TableCell className="pr-6">
                       <StatusBadge status={request.status} />
                     </TableCell>
@@ -327,36 +325,51 @@ function OwnerRequests() {
   );
 }
 
-export default function VisitRequests() {
+export default function VisitRequests({ role }) {
+  const { data, isError, isPending, error } = useGetTenantViewQRequests();
+  if (isError) {
+    toast.add({
+      type: "success",
+      description: getErrorMessage(error),
+    });
+  }
+
+  if (isPending) {
+    return <h1> Loading</h1>;
+  }
+
+  const tenantViewReqData = data?.data;
   return (
     <main className="min-h-screen bg-muted/30 text-foreground">
-      <header className="border-b bg-background">
-        <div className="mx-auto flex max-w-7xl flex-col gap-1 px-5 py-6 sm:px-8">
-          <p className="text-sm text-muted-foreground">
-            Homiee workspace / Requests
-          </p>
-          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-            Property visit requests
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Manage viewing requests with clear next steps for every home.
-          </p>
+      <div className="lg:pl-72">
+        <header className="border-b bg-background">
+          <div className="mx-auto flex max-w-7xl flex-col gap-1 px-5 py-6 sm:px-8">
+            <p className="text-sm text-muted-foreground">
+              Homiee workspace / Requests
+            </p>
+            <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+              Property visit requests
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Manage viewing requests with clear next steps for every home.
+            </p>
+          </div>
+        </header>
+        <div className="mx-auto max-w-7xl p-5 sm:p-8">
+          <Tabs>
+            {/* {role == "TENANT" && (
+            <TabsContent value="tenant">
+              <TenantRequests />
+            </TabsContent>
+          )} */}
+
+            {role == "TENANT" && (
+              <TenantRequests tenantViewReqData={tenantViewReqData} />
+            )}
+
+            {role == "OWNER" && <OwnerRequests />}
+          </Tabs>
         </div>
-      </header>
-      <div className="mx-auto max-w-7xl p-5 sm:p-8">
-        <Tabs defaultValue="tenant">
-          <TabsList>
-            <TabsTrigger value="tenant">Tenant view</TabsTrigger>
-            <TabsTrigger value="owner">Owner view</TabsTrigger>
-          </TabsList>
-          <Separator className="my-6" />
-          <TabsContent value="tenant">
-            <TenantRequests />
-          </TabsContent>
-          <TabsContent value="owner">
-            <OwnerRequests />
-          </TabsContent>
-        </Tabs>
       </div>
     </main>
   );

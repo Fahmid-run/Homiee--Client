@@ -74,7 +74,7 @@ function TenantSidebar({ children }: { children: ReactNode }) {
               Workspace
             </p>
             {navItems.map(({ label, icon: Icon, active, count, to }) => (
-              <Link href={`/tenant${to}`}>
+              <Link href={`/tenant${to}`} key={label}>
                 <Button
                   key={label}
                   variant={active ? "secondary" : "ghost"}
