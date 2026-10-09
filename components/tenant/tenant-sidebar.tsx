@@ -27,7 +27,6 @@ import Link from "next/link";
 
 const navItems = [
   { label: "Dashboard", icon: LayoutDashboard, active: true, to: "/" },
-  { label: "Properties", icon: Home, to: "/" },
   { label: "Visit Requests", icon: Search, count: "2", to: "/view-request" },
   { label: "Applications", icon: FileText, to: "/" },
   { label: "My Rental", icon: WalletCards, to: "/rental" },

@@ -50,17 +50,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-const navItems = [
-  ["Dashboard", LayoutDashboard],
-  ["Properties", Building2],
-  ["Rooms", DoorOpen],
-  ["Visit Requests", CalendarDays],
-  ["Applications", FileText],
-  ["Rentals", Home],
-  ["Bills", Receipt],
-  ["Documents", FileText],
-  ["Profile", Users],
-] as const;
 const properties = [
   {
     name: "Modern Downtown Loft",
@@ -139,77 +128,6 @@ export default function OwnerDashboard() {
   const [reviewed, setReviewed] = useState<string[]>([]);
   return (
     <main className="min-h-screen bg-muted/30 text-foreground">
-      <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r bg-background p-5 transition-transform lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}
-      >
-        <div className="flex items-center justify-between px-2">
-          <a href="#" className="text-2xl font-bold tracking-tight">
-            homiee<span className="text-primary">.</span>
-          </a>
-          <Button
-            size="icon"
-            variant="ghost"
-            className="lg:hidden"
-            onClick={() => setMobileOpen(false)}
-            aria-label="Close menu"
-          >
-            <X />
-          </Button>
-        </div>
-        <div className="mt-10 flex flex-1 flex-col gap-1">
-          <p className="mb-3 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Workspace
-          </p>
-          {navItems.map(([label, Icon], i) => (
-            <Button
-              key={label}
-              variant={i === 0 ? "secondary" : "ghost"}
-              className={`justify-start gap-3 ${i === 0 ? "font-semibold text-primary" : "text-muted-foreground"}`}
-            >
-              <Icon data-icon="inline-start" />
-              {label}
-              {label === "Visit Requests" && (
-                <Badge variant="outline" className="ml-auto">
-                  2
-                </Badge>
-              )}
-            </Button>
-          ))}
-          <Separator className="my-6" />
-          <Button
-            variant="ghost"
-            className="justify-start gap-3 text-muted-foreground"
-          >
-            <Settings data-icon="inline-start" />
-            Settings
-          </Button>
-          <Button
-            variant="ghost"
-            className="justify-start gap-3 text-muted-foreground"
-          >
-            <LogOut data-icon="inline-start" />
-            Logout
-          </Button>
-        </div>
-        <Card className="border-primary/15 bg-primary/5 shadow-none">
-          <CardContent className="p-4">
-            <p className="font-medium">Owner workspace</p>
-            <p className="mt-1 text-xs leading-5 text-muted-foreground">
-              Keep your properties and tenants moving forward.
-            </p>
-            <Button variant="link" className="mt-2 h-auto p-0 text-xs">
-              View help <ChevronRight data-icon="inline-end" />
-            </Button>
-          </CardContent>
-        </Card>
-      </aside>
-      {mobileOpen && (
-        <button
-          className="fixed inset-0 z-30 bg-black/30 lg:hidden"
-          onClick={() => setMobileOpen(false)}
-          aria-label="Close navigation"
-        />
-      )}
       <div className="lg:pl-72">
         <header className="flex h-20 items-center justify-between border-b bg-background/80 px-5 backdrop-blur sm:px-8">
           <div className="flex items-center gap-3">
