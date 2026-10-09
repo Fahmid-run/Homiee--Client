@@ -28,9 +28,9 @@ import Link from "next/link";
 const navItems = [
   { label: "Dashboard", icon: LayoutDashboard, active: true, to: "/" },
   { label: "Properties", icon: Home, to: "/" },
-  { label: "Visit Requests", icon: Search, count: "2", to: "/" },
+  { label: "Visit Requests", icon: Search, count: "2", to: "/view-request" },
   { label: "Applications", icon: FileText, to: "/" },
-  { label: "My Rental", icon: WalletCards, to: "/" },
+  { label: "My Rental", icon: WalletCards, to: "/rental" },
   { label: "Payments", icon: CircleDollarSign, to: "/" },
   { label: "Bills", icon: Receipt, count: "1", to: "/" },
   { label: "Documents", icon: FileText, to: "/documents" },
@@ -107,20 +107,6 @@ function TenantSidebar({ children }: { children: ReactNode }) {
               Logout
             </Button>
           </div>
-          <Card className="border-primary/15 bg-primary/5 shadow-none">
-            <CardContent className="p-4">
-              <div className="mb-3 flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <Sparkles />
-              </div>
-              <p className="font-medium">Need a hand?</p>
-              <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                Our support team is here for your rental journey.
-              </p>
-              <Button variant="link" className="mt-2 h-auto p-0 text-xs">
-                Contact support <ArrowUpRight data-icon="inline-end" />
-              </Button>
-            </CardContent>
-          </Card>
         </aside>
 
         <main className="w-full">{children}</main>
