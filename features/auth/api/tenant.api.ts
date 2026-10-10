@@ -11,3 +11,7 @@ export const getMyViewReq = () => {
 export const getPaymentList = () => {
   return apiClient("/tenant/payments");
 };
+
+export const createViewReq = (roomId: string) => {
+  return apiClient(`/tenant/view-request/${roomId}`);
+};

@@ -3,6 +3,7 @@ import { ArrowUpRight, MapPin, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { useRouter } from "next/navigation";
 
 interface Property {
   id: number;
@@ -15,6 +16,9 @@ interface Property {
 }
 
 export default function PropertyCard({ property }: { property: Property }) {
+  const router = useRouter();
+
+  const slug = property.id;
   return (
     <Card className="group overflow-hidden border-border/70 bg-card py-0 transition-all hover:-translate-y-0.5 hover:shadow-lg">
       <div className="relative aspect-[4/3] overflow-hidden bg-muted">
@@ -76,7 +80,13 @@ export default function PropertyCard({ property }: { property: Property }) {
             </span>
           </p>
         </div> */}
-        <Button size="sm" variant="outline">
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => {
+            router.push(`/properties/${slug}`);
+          }}
+        >
           View property
           <ArrowUpRight data-icon="inline-end" />
         </Button>

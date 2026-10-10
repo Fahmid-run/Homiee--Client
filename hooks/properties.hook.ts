@@ -1,7 +1,10 @@
+"use client";
+
 import {
   createProperty,
   getAllProperty,
   getOwnerProperty,
+  getPropertyById,
 } from "@/features/auth/api/property.api";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
@@ -19,5 +22,12 @@ export const useGetOwnerPropertyList = () => {
 export const useCreateProperty = () => {
   return useMutation({
     mutationFn: createProperty,
+  });
+};
+
+export const useGetPropertyById = (id: string) => {
+  return useQuery({
+    queryKey: ["property-by-id", id],
+    queryFn: () => getPropertyById(id),
   });
 };

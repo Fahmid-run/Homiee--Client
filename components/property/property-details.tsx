@@ -45,6 +45,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { useRouter } from "next/navigation";
 
 const gallery = ["/property-1.png", "/property-2.png", "/property-3.png"];
 const rooms = [
@@ -70,17 +71,24 @@ const rooms = [
     status: "Available now",
   },
 ];
-const amenities = [
-  ["Wi-Fi", Wifi],
-  ["Parking", ParkingSquare],
-  ["Kitchen", Utensils],
-  ["Washing machine", WashingMachine],
-  ["Security", ShieldCheck],
-  ["Balcony", Wind],
-] as const;
 
-export default function PropertyDetails() {
+interface IRoom {
+  roomNumber: string;
+  capacity: number;
+  monthlyRent: number;
+  roomstatus: any;
+  roomType: any;
+}
+export default function PropertyDetails({
+  slug,
+  data,
+}: {
+  slug: string;
+  data: any;
+}) {
   const [activeImage, setActiveImage] = useState(0);
+
+  const router = useRouter();
   const [submitted, setSubmitted] = useState(false);
   const [date, setDate] = useState("");
   const [message, setMessage] = useState("");
@@ -89,9 +97,9 @@ export default function PropertyDetails() {
     setActiveImage(
       (current) => (current + direction + gallery.length) % gallery.length,
     );
+
   const submitRequest = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setSubmitted(true);
   };
 
   return (
@@ -102,7 +110,7 @@ export default function PropertyDetails() {
             Properties
           </a>
           <span>/</span>
-          <span className="text-foreground">Modern Downtown Loft</span>
+          <span className="text-foreground">{data?.name}</span>
         </div>
         <section className="grid gap-8 lg:grid-cols-[1.4fr_0.9fr]">
           <div className="relative overflow-hidden rounded-2xl border bg-background shadow-sm">
@@ -163,30 +171,30 @@ export default function PropertyDetails() {
             </div>
             <div>
               <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-                Modern Downtown Loft
+                {data?.name}
               </h1>
               <p className="mt-3 flex items-center gap-2 text-muted-foreground">
-                <MapPin /> Downtown District, New York
+                <MapPin /> {data?.address}
               </p>
             </div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               <div className="rounded-xl border bg-background p-4">
                 <BedDouble className="mb-3 text-primary" />
                 <p className="text-xs text-muted-foreground">Rooms</p>
-                <p className="font-semibold">2 available</p>
+                <p className="font-semibold">{data?.totalrooms} available</p>
               </div>
-              <div className="rounded-xl border bg-background p-4">
+              {/* <div className="rounded-xl border bg-background p-4">
                 <Home className="mb-3 text-primary" />
                 <p className="text-xs text-muted-foreground">Property</p>
                 <p className="font-semibold">Co-living</p>
-              </div>
+              </div> */}
               <div className="rounded-xl border bg-background p-4">
                 <CalendarDays className="mb-3 text-primary" />
                 <p className="text-xs text-muted-foreground">Lease</p>
                 <p className="font-semibold">Flexible</p>
               </div>
             </div>
-            <div className="rounded-xl border bg-background p-5">
+            {/* <div className="rounded-xl border bg-background p-5">
               <p className="text-sm text-muted-foreground">Monthly rent from</p>
               <p className="mt-1 text-3xl font-semibold">
                 $1,250{" "}
@@ -197,7 +205,7 @@ export default function PropertyDetails() {
               <p className="mt-1 text-sm text-muted-foreground">
                 Utilities and Wi-Fi included
               </p>
-            </div>
+            </div> */}
             <Button
               size="lg"
               className="w-full"
@@ -246,26 +254,7 @@ export default function PropertyDetails() {
               </div>
             </section>
             <Separator />
-            <section>
-              <div className="mb-5">
-                <p className="text-sm font-medium text-primary">
-                  WHAT&apos;S INCLUDED
-                </p>
-                <h2 className="mt-1 text-2xl font-semibold">Amenities</h2>
-              </div>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                {amenities.map(([label, Icon]) => (
-                  <div
-                    key={label}
-                    className="flex items-center gap-3 rounded-xl border bg-background p-4"
-                  >
-                    <Icon className="text-primary" />
-                    <span className="text-sm font-medium">{label}</span>
-                  </div>
-                ))}
-              </div>
-            </section>
-            <Separator />
+
             <section>
               <div className="mb-5 flex items-end justify-between">
                 <div>
@@ -279,22 +268,20 @@ export default function PropertyDetails() {
                 <Badge variant="outline">3 options</Badge>
               </div>
               <div className="grid gap-5 md:grid-cols-3">
-                {rooms.map((room) => (
-                  <Card key={room.name} className="overflow-hidden py-0">
+                {data?.rooms.map((room: IRoom) => (
+                  <Card key={room.roomNumber} className="overflow-hidden py-0">
                     <div className="relative aspect-[4/3]">
-                      <Image
+                      {/* <Image
                         src={room.image}
                         alt={room.name}
                         fill
                         className="object-cover"
-                      />
+                      /> */}
                     </div>
                     <CardHeader className="gap-2">
                       <div className="flex items-start justify-between gap-2">
-                        <CardTitle>{room.name}</CardTitle>
-                        <Badge variant="secondary">
-                          {room.status.includes("now") ? "Open" : "Soon"}
-                        </Badge>
+                        <CardTitle>{room.roomNumber}</CardTitle>
+                        <Badge variant="secondary">{room.roomstatus}</Badge>
                       </div>
                       <CardDescription className="flex items-center gap-2">
                         <Users /> {room.capacity}
@@ -302,7 +289,7 @@ export default function PropertyDetails() {
                     </CardHeader>
                     <CardContent>
                       <p className="text-xl font-semibold">
-                        ${room.rent.toLocaleString()}
+                        ${room.monthlyRent.toLocaleString()}
                         <span className="text-sm font-normal text-muted-foreground">
                           {" "}
                           / month
@@ -310,7 +297,13 @@ export default function PropertyDetails() {
                       </p>
                     </CardContent>
                     <CardFooter>
-                      <Button variant="outline" className="w-full">
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => {
+                          router.push("/");
+                        }}
+                      >
                         View room
                       </Button>
                     </CardFooter>
@@ -319,61 +312,8 @@ export default function PropertyDetails() {
               </div>
             </section>
             <Separator />
-            <section>
-              <div className="mb-5">
-                <p className="text-sm font-medium text-primary">
-                  EXPLORE THE AREA
-                </p>
-                <h2 className="mt-1 text-2xl font-semibold">Location</h2>
-              </div>
-              <div className="relative flex min-h-72 items-center justify-center overflow-hidden rounded-2xl border bg-secondary/40">
-                <div
-                  className="absolute inset-0 opacity-30"
-                  style={{
-                    backgroundImage:
-                      "linear-gradient(30deg, hsl(var(--border)) 12%, transparent 12.5%, transparent 87%, hsl(var(--border)) 87.5%), linear-gradient(150deg, hsl(var(--border)) 12%, transparent 12.5%, transparent 87%, hsl(var(--border)) 87.5%), linear-gradient(30deg, hsl(var(--border)) 12%, transparent 12.5%, transparent 87%, hsl(var(--border)) 87.5%), linear-gradient(150deg, hsl(var(--border)) 12%, transparent 12.5%, transparent 87%, hsl(var(--border)) 87.5%)",
-                    backgroundSize: "80px 140px",
-                    backgroundPosition: "0 0, 0 0, 40px 70px, 40px 70px",
-                  }}
-                />
-                <div className="relative rounded-full border bg-background p-4 shadow-lg">
-                  <MapPin className="text-primary" />
-                </div>
-                <div className="absolute bottom-4 left-4 rounded-lg border bg-background/95 px-3 py-2 text-sm shadow-sm">
-                  <p className="font-medium">Downtown District</p>
-                  <p className="text-muted-foreground">Near Central Station</p>
-                </div>
-              </div>
-            </section>
           </div>
           <aside className="flex flex-col gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <KeyRound /> Meet your host
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="flex items-center gap-4">
-                <Avatar className="size-14">
-                  <AvatarImage src="/placeholder-user.jpg" alt="Alex Morgan" />
-                  <AvatarFallback>AM</AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-semibold">Alex Morgan</p>
-                  <p className="text-sm text-muted-foreground">
-                    Property owner
-                  </p>
-                  <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-                    <ShieldCheck /> Verified owner
-                  </p>
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button variant="outline" className="w-full">
-                  <MessageSquare data-icon="inline-start" /> Contact owner
-                </Button>
-              </CardFooter>
-            </Card>
             <Card id="visit-request">
               <CardHeader>
                 <CardTitle>Request a visit</CardTitle>
@@ -440,14 +380,6 @@ export default function PropertyDetails() {
                 </CardFooter>
               </form>
             </Card>
-            <div className="rounded-xl border bg-background p-5">
-              <div className="flex items-center gap-2 font-medium">
-                <Clock3 className="text-primary" /> Quick response
-              </div>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                Most owners respond to visit requests within 24 hours.
-              </p>
-            </div>
           </aside>
         </div>
       </div>

@@ -33,79 +33,6 @@ import PropertyCard from "@/components/property/property-card";
 import SortDropdown from "@/components/property/sort-dropdown";
 import { useGetAllProperties } from "@/hooks/properties.hook";
 
-const properties = [
-  {
-    id: 1,
-    name: "Modern Downtown Loft",
-    location: "Downtown District",
-    description:
-      "Stylish loft with floor-to-ceiling windows and contemporary finishes.",
-    image: "/property-1.png",
-    price: 2500,
-    availableRooms: 2,
-    amenities: ["Gym", "Parking", "Rooftop"],
-    propertyType: "Apartment",
-  },
-  {
-    id: 2,
-    name: "Cozy Studio Near Park",
-    location: "Green Valley",
-    description:
-      "An intimate studio for professionals, close to shopping and green space.",
-    image: "/property-2.png",
-    price: 1200,
-    availableRooms: 1,
-    amenities: ["Garden", "WiFi", "Pet-friendly"],
-    propertyType: "Studio",
-  },
-  {
-    id: 3,
-    name: "Luxury Family Home",
-    location: "Suburban Heights",
-    description:
-      "Spacious home with modern amenities and a generous private backyard.",
-    image: "/property-3.png",
-    price: 4000,
-    availableRooms: 4,
-    amenities: ["Pool", "Parking", "Gym"],
-    propertyType: "House",
-  },
-  {
-    id: 4,
-    name: "Tech Hub Shared Space",
-    location: "Innovation District",
-    description:
-      "A vibrant shared living concept with community spaces and coworking.",
-    image: "/property-4.png",
-    price: 1800,
-    availableRooms: 1,
-    amenities: ["Coworking", "Events", "Parking"],
-    propertyType: "Co-living",
-  },
-  {
-    id: 5,
-    name: "Riverside Penthouse",
-    location: "Waterfront",
-    description: "Upscale penthouse with panoramic views and premium finishes.",
-    image: "/property-5.png",
-    price: 5500,
-    availableRooms: 3,
-    amenities: ["Concierge", "Spa", "Restaurant"],
-    propertyType: "Apartment",
-  },
-  {
-    id: 6,
-    name: "Urban Garden Townhouse",
-    location: "Arts District",
-    description:
-      "Contemporary townhouse with a private patio and rooftop garden.",
-    image: "/property-6.png",
-    price: 3200,
-    availableRooms: 3,
-    amenities: ["Garden", "Parking", "Laundry"],
-    propertyType: "Townhouse",
-  },
-];
 const initialFilters: Filters = {
   address: "",
   minPrice: 0,
@@ -132,39 +59,6 @@ export default function PropertiesPage() {
   const { isPending, isError, data, error } = useGetAllProperties();
   const propertiesData = data?.data?.data;
 
-  console.log(data?.data?.data);
-
-  // const results = useMemo(() => {
-  //   if (!propertiesData || !Array.isArray(propertiesData)) {
-  //     return [];
-  //   }
-  //   const filtered = propertiesData.filter(
-  //     (property) =>
-  //       (!filters.address || property.address === filters.address) &&
-  //       property.price >= filters.minPrice &&
-  //       property.price <= filters.maxPrice &&
-  //       (!filters.propertyType ||
-  //         property.propertyType === filters.propertyType) &&
-  //       (!filters.rooms || property.availableRooms >= filters.rooms) &&
-  //       (!query ||
-  //         `${property.name} ${property.location} ${property.description}`
-  //           .toLowerCase()
-  //           .includes(query.toLowerCase())),
-  //   );
-  //   return [...filtered].sort((a, b) =>
-  //     sort === "price-low"
-  //       ? a.price - b.price
-  //       : sort === "price-high"
-  //         ? b.price - a.price
-  //         : sort === "newest"
-  //           ? b.id - a.id
-  //           : a.id - b.id,
-  //   );
-  // }, [filters, query, sort, propertiesData]);
-  // const totalPages = Math.max(1, Math.ceil(results.length / perPage));
-  // const visible = results.slice((page - 1) * perPage, page * perPage);
-
-  // console.log("visible data>>", visible);
   if (isPending) {
     return <span>Loading...</span>;
   }
@@ -285,7 +179,7 @@ export default function PropertiesPage() {
               </EmptyContent>
             </Empty>
           )}
-          {propertiesData.length > perPage && (
+          {/* {propertiesData.length > perPage && (`
             <Pagination className="mt-10">
               <PaginationContent>
                 <PaginationItem>
@@ -322,7 +216,7 @@ export default function PropertiesPage() {
                 </PaginationItem>
               </PaginationContent>
             </Pagination>
-          )}
+          )} */}
         </section>
       </div>
     </main>
