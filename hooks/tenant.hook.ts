@@ -1,7 +1,7 @@
-import { getMyViewReq } from "@/features/auth/api/tenant.api";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { useCreateProperty } from "./properties.hook";
-import { createProperty } from "@/features/auth/api/property.api";
+"use client";
+
+import { getMyViewReq, getPaymentList } from "@/features/auth/api/tenant.api";
+import { useQuery } from "@tanstack/react-query";
 
 export const useGetTenantViewQRequests = () => {
   return useQuery({
@@ -10,8 +10,9 @@ export const useGetTenantViewQRequests = () => {
   });
 };
 
-export const useCreateNewProperty = () => {
-  return useMutation({
-    mutationFn: createProperty,
+export const useGetPaymentList = () => {
+  return useQuery({
+    queryKey: ["tenant-payment-list"],
+    queryFn: getPaymentList,
   });
 };

@@ -40,6 +40,7 @@ import {
 } from "@/Validation/form/auth.validator";
 import { useLogin, useRegister } from "@/hooks";
 import { getErrorMessage } from "@/lib/getErrorMessage";
+import { error } from "console";
 
 export default function Auth() {
   const [mode, setMode] = useState<"login" | "register">("login");
@@ -76,11 +77,13 @@ export default function Auth() {
         if (!result.success) {
           return result.error.issues.map((issue) => issue.message).join(", ");
         }
-        return null;
       },
     },
     onSubmitInvalid: ({ value, formApi }) => {
-      console.log("INVALID", value, formApi.state.errors);
+      toast.add({
+        title: getErrorMessage(formApi.state.errors),
+        type: "error",
+      });
     },
     onSubmit: async ({ value }) => {
       const loginData = {
@@ -127,6 +130,7 @@ export default function Auth() {
         }
       } catch (error) {
         setStatus("error");
+
         console.log(error);
       } finally {
         setLoading(false);
@@ -421,7 +425,9 @@ export default function Auth() {
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="TENANT">Tenant</SelectItem>
-                                <SelectItem value="OWNER">Owner</SelectItem>
+                                <SelectItem value="PROPERTY_OWNER">
+                                  Owner
+                                </SelectItem>
                               </SelectContent>
                             </Select>
                           </div>

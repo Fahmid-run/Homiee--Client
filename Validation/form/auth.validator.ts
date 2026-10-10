@@ -18,7 +18,7 @@ export const RegistrationZodSchema = z
     confirmPassword: z.string().min(1, "Please confirm your password"),
     role: z
       .enum(
-        ["PROPERTY_MANAGER", "TENANT", "PROPERTY_OWNER", "TENANT"],
+        ["PROPERTY_MANAGER", "TENANT", "PROPERTY_OWNER"],
         "Plz Choose a valid role",
       )
       .optional(),

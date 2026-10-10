@@ -1,5 +1,8 @@
+"use client";
+
 import Payments from "@/components/shared/payment";
-import React from "react";
+import { useGetPaymentList } from "@/hooks/tenant.hook";
+import { getErrorMessage } from "@/lib/getErrorMessage";
 
 const PaymentPage = () => {
   return (

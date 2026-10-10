@@ -7,3 +7,7 @@ export const getMyViewReq = () => {
 // export const getOwnerProperty = () => {
 //   return apiClient("/property/owner/me");
 // };
+
+export const getPaymentList = () => {
+  return apiClient("/tenant/payments");
+};

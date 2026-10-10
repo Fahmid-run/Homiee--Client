@@ -34,6 +34,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useGetPaymentList } from "@/hooks/tenant.hook";
+import { getErrorMessage } from "@/lib/getErrorMessage";
+import TenantPaymentLoader from "../loading pages/tenant-payment-loader";
 
 const payments = [
   {
@@ -253,6 +256,15 @@ export default function Payments() {
     paid && selected.status === "Pending"
       ? { ...selected, status: "Paid" }
       : selected;
+
+  const { data, isError, isPending } = useGetPaymentList();
+
+  if (isPending) {
+    return <TenantPaymentLoader></TenantPaymentLoader>;
+  }
+
+  const listData = data?.data;
+
   return (
     <main className="min-h-screen bg-muted/20 text-foreground">
       <div className="lg:pl-72">
@@ -333,7 +345,7 @@ export default function Payments() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {payments.map((payment) => (
+                      {listData?.map((payment) => (
                         <TableRow
                           key={payment.id}
                           data-state={

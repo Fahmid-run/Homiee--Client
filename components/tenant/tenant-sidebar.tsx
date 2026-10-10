@@ -30,7 +30,7 @@ const navItems = [
   { label: "Visit Requests", icon: Search, count: "2", to: "/view-request" },
   { label: "Applications", icon: FileText, to: "/" },
   { label: "My Rental", icon: WalletCards, to: "/rental" },
-  { label: "Payments", icon: CircleDollarSign, to: "/" },
+  { label: "Payments", icon: CircleDollarSign, to: "/payments" },
   { label: "Bills", icon: Receipt, count: "1", to: "/" },
   { label: "Documents", icon: FileText, to: "/documents" },
 ];
