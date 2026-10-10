@@ -127,7 +127,7 @@ export function HomieeLanding() {
           </a>
         </nav>
 
-        {Object.keys(data?.data).length == 0 && (
+        {data && Object.keys(data?.data).length == 0 && (
           <div className="hidden items-center gap-3 md:flex">
             <Button variant="ghost">Log in</Button>
             <Button>
