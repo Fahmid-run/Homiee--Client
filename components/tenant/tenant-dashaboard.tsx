@@ -111,9 +111,9 @@ export default function TenantDashboard() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Button size="icon" variant="outline" aria-label="Notifications">
+            {/* <Button size="icon" variant="outline" aria-label="Notifications">
               <Bell />
-            </Button>
+            </Button> */}
             <Separator orientation="vertical" className="hidden h-8 sm:block" />
             <Avatar className="size-9">
               <AvatarImage src="/placeholder-user.jpg" alt="Alex Morgan" />
@@ -131,7 +131,7 @@ export default function TenantDashboard() {
               Here&apos;s what&apos;s happening with your rental.
             </p>
           </div>
-          <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             <Summary
               icon={Home}
               label="Active rental"
@@ -150,13 +150,6 @@ export default function TenantDashboard() {
               label="Pending applications"
               value="2"
               meta="Awaiting response"
-            />
-            <Summary
-              icon={Receipt}
-              label="Outstanding bills"
-              value="$42.80"
-              meta="1 bill to review"
-              warning
             />
           </section>
           <div className="mt-8 grid gap-6 xl:grid-cols-[1.35fr_0.85fr]">
@@ -233,7 +226,8 @@ export default function TenantDashboard() {
               </CardContent>
             </Card>
           </div>
-          <div className="mt-6 grid gap-6 xl:grid-cols-[1.35fr_0.85fr]">
+          {/* <div className="mt-6 grid gap-6 xl:grid-cols-[1.35fr_0.85fr]"> */}
+          <div className="mt-6">
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
@@ -297,7 +291,7 @@ export default function TenantDashboard() {
                 ))}
               </CardContent>
             </Card>
-            <Card>
+            {/* <Card>
               <CardHeader>
                 <CardTitle>Recent activity</CardTitle>
                 <CardDescription>Stay up to date.</CardDescription>
@@ -333,7 +327,7 @@ export default function TenantDashboard() {
                   })}
                 </div>
               </CardContent>
-            </Card>
+            </Card> */}
           </div>
         </div>
       </div>

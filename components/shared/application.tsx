@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import {
+  AlertCircle,
   CalendarDays,
   Check,
   ChevronRight,
@@ -10,6 +11,7 @@ import {
   MapPin,
   MessageSquare,
   Phone,
+  Plus,
   UserRound,
   X,
 } from "lucide-react";
@@ -26,10 +28,26 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldLegend,
+  FieldSet,
+} from "../ui/field";
+import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
+import { toast } from "../ui/toast";
+import { getErrorMessage } from "@/lib/getErrorMessage";
+import { useForm } from "@tanstack/react-form-nextjs";
 
 type Status = "Pending" | "Accepted" | "Rejected";
 type Application = {
@@ -113,12 +131,12 @@ function StatusBadge({ status }: { status: Status }) {
 
 function ApplicationDetail({
   application,
-  owner,
+  role,
   onClose,
   onStatusChange,
 }: {
   application: Application;
-  owner: boolean;
+  role: "owner" | "tenant";
   onClose: () => void;
   onStatusChange: (status: Status) => void;
 }) {
@@ -193,7 +211,7 @@ function ApplicationDetail({
                 </span>
               </p>
             </div>
-            {owner && application.status === "Pending" && (
+            {role == "owner" && application.status === "Pending" && (
               <div className="flex flex-col gap-2 pt-2">
                 <Button onClick={() => onStatusChange("Accepted")}>
                   <Check data-icon="inline-start" />
@@ -208,7 +226,7 @@ function ApplicationDetail({
                 </Button>
               </div>
             )}
-            {owner && application.status === "Accepted" && (
+            {role == "owner" && application.status === "Accepted" && (
               <div className="rounded-lg border border-primary/20 bg-primary/10 p-3 text-sm text-primary">
                 Application accepted. This application is ready for rental
                 creation.
@@ -221,10 +239,12 @@ function ApplicationDetail({
   );
 }
 
-export function ApplicationManagement() {
-  const [owner, setOwner] = useState(true);
+export function ApplicationManagement({ role }) {
   const [selected, setSelected] = useState<Application | null>(null);
   const [items, setItems] = useState(applications);
+
+  const [open, setOpen] = useState(false);
+
   const updateStatus = (status: Status) => {
     if (!selected) return;
     const next = { ...selected, status };
@@ -234,6 +254,41 @@ export function ApplicationManagement() {
     setSelected(next);
   };
 
+  function handleOpenChange(nextOpen: boolean) {
+    setOpen(nextOpen);
+  }
+
+  const form = useForm({
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+      role: "TENANT",
+    },
+    validators: {
+      onSubmit: ({ value }) => {
+        // const result = schema.safeParse(value);
+        // if (!result.success) {
+        //   return result.error.issues.map((issue) => issue.message).join(", ");
+        // }
+      },
+    },
+    onSubmitInvalid: ({ value, formApi }) => {
+      toast.add({
+        title: getErrorMessage(formApi.state.errors),
+        type: "error",
+      });
+    },
+    onSubmit: async ({ value }) => {
+      try {
+      } catch (error) {
+        console.log(error);
+
+        console.log(error);
+      } finally {
+      }
+    },
+  });
   return (
     <main className="min-h-svh bg-muted/30">
       <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-8 sm:px-6 lg:py-12">
@@ -250,23 +305,18 @@ export function ApplicationManagement() {
               great tenants into their new home.
             </p>
           </div>
-          <ToggleGroup
-            type="single"
-            value={owner ? "owner" : "tenant"}
-            onValueChange={(value) => value && setOwner(value === "owner")}
-            variant="outline"
-          >
-            <ToggleGroupItem value="tenant">Tenant view</ToggleGroupItem>
-            <ToggleGroupItem value="owner">Owner view</ToggleGroupItem>
-          </ToggleGroup>
         </header>
-        {owner ? (
+
+        {role == "owner" ? (
           <Card>
             <CardHeader>
-              <CardTitle>Application review</CardTitle>
-              <CardDescription>
-                Review prospective tenants and manage their application status.
-              </CardDescription>
+              <div>
+                <CardTitle>Application review</CardTitle>
+                <CardDescription>
+                  Review prospective tenants and manage their application
+                  status.
+                </CardDescription>
+              </div>
             </CardHeader>
             <CardContent className="flex flex-col gap-3">
               {items.map((application) => (
@@ -303,11 +353,76 @@ export function ApplicationManagement() {
           </Card>
         ) : (
           <Card>
-            <CardHeader>
-              <CardTitle>Your applications</CardTitle>
-              <CardDescription>
-                Track the progress of your rental applications.
-              </CardDescription>
+            <CardHeader className="flex justify-between items-center">
+              <div>
+                <CardTitle>Your applications</CardTitle>
+                <CardDescription>
+                  Track the progress of your rental applications.
+                </CardDescription>
+              </div>
+
+              <Dialog open={open} onOpenChange={handleOpenChange}>
+                <DialogTrigger asChild>
+                  <Button>
+                    <Plus data-icon="inline-start" />
+                    Add property
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>Add a new property</DialogTitle>
+                    <DialogDescription>
+                      Create a listing with the details renters need to find the
+                      right home.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <form
+                    className="flex flex-col gap-4"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      // form.handleSubmit();
+                    }}
+                  >
+                    <form.Field name="email">
+                      {(field) => {
+                        const isInvalid =
+                          field.state.meta.isTouched &&
+                          !field.state.meta.isValid;
+                        return (
+                          <Field>
+                            <FieldLabel htmlFor="email">
+                              Email address
+                            </FieldLabel>
+                            <div className="relative">
+                              <Mail className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                              <Input
+                                id="email"
+                                type="email"
+                                placeholder="you@example.com"
+                                className="pl-10"
+                                value={field.state.value}
+                                aria-invalid={status === "error"}
+                                onBlur={field.handleBlur}
+                                autoComplete="off"
+                                onChange={(e) =>
+                                  field.handleChange(e.target.value)
+                                }
+                              />
+                            </div>
+                            {isInvalid && (
+                              <FieldError errors={field.state.meta.errors} />
+                            )}
+                          </Field>
+                        );
+                      }}
+                    </form.Field>
+
+                    <Button type="submit" className="mt-2 w-full">
+                      test
+                    </Button>
+                  </form>
+                </DialogContent>
+              </Dialog>
             </CardHeader>
             <CardContent className="flex flex-col gap-3">
               {items.map((application) => (
@@ -344,8 +459,8 @@ export function ApplicationManagement() {
         )}
         {selected && (
           <ApplicationDetail
+            role={role}
             application={selected}
-            owner={owner}
             onClose={() => setSelected(null)}
             onStatusChange={updateStatus}
           />

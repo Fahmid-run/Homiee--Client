@@ -9,6 +9,7 @@ import {
   ExternalLink,
   MapPin,
   MessageSquare,
+  Plus,
   X,
 } from "lucide-react";
 import {
@@ -24,6 +25,32 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldLegend,
+  FieldSet,
+} from "@/components/ui/field";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   Card,
   CardContent,
@@ -51,6 +78,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useGetTenantViewQRequests } from "@/hooks/tenant.hook";
 import { toast } from "../ui/toast";
 import { getErrorMessage } from "@/lib/getErrorMessage";
+import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
 
 type Status = "Pending" | "Accepted" | "Rejected";
 type Request = {
@@ -142,13 +171,38 @@ function EmptyRequests({ owner }: { owner: boolean }) {
 }
 
 function TenantRequests({ tenantViewReqData }) {
+  const [open, setOpen] = useState(false);
+
+  function handleOpenChange(nextOpen: boolean) {
+    setOpen(nextOpen);
+  }
   return (
     <Card>
       <CardHeader>
-        <CardTitle>My visit requests</CardTitle>
-        <CardDescription>
-          Track the properties you have asked to visit.
-        </CardDescription>
+        <div>
+          <CardTitle>My visit requests</CardTitle>
+          <CardDescription>
+            Track the properties you have asked to visit.
+          </CardDescription>
+        </div>
+
+        <Dialog open={open} onOpenChange={handleOpenChange}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus data-icon="inline-start" />
+              Add property
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>View Request</DialogTitle>
+              <DialogDescription>
+                Create a listing with the details renters need to find the right
+                home.
+              </DialogDescription>
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
       </CardHeader>
       <CardContent className="p-0">
         {tenantViewReqData.length === 0 ? (

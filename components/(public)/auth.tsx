@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import {
   Eye,
   EyeOff,
@@ -41,6 +41,7 @@ import {
 import { useLogin, useRegister } from "@/hooks";
 import { getErrorMessage } from "@/lib/getErrorMessage";
 import { error } from "console";
+import { useAfterAuth } from "@/hooks/use-after-auth";
 
 export default function Auth() {
   const [mode, setMode] = useState<"login" | "register">("login");
@@ -134,6 +135,7 @@ export default function Auth() {
         console.log(error);
       } finally {
         setLoading(false);
+        await useAfterAuth();
       }
     },
   });
@@ -241,35 +243,69 @@ export default function Auth() {
                   </div>
                 </Alert>
               )}
-              <form
-                className="flex flex-col gap-4"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  form.handleSubmit();
-                }}
-              >
-                {mode === "register" && (
-                  <form.Field name="name">
+
+              <Suspense fallback={null}>
+                <form
+                  className="flex flex-col gap-4"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    form.handleSubmit();
+                  }}
+                >
+                  {mode === "register" && (
+                    <form.Field name="name">
+                      {(field) => {
+                        const isInvalid =
+                          field.state.meta.isTouched &&
+                          !field.state.meta.isValid;
+                        return (
+                          <Field>
+                            <FieldLabel htmlFor="name">Full name</FieldLabel>
+                            <div className="relative">
+                              <UserRound className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                              <Input
+                                id={field.name}
+                                name={field.name}
+                                placeholder="Olivia Martin"
+                                className="pl-10"
+                                onBlur={field.handleBlur}
+                                value={field.state.value}
+                                autoComplete="off"
+                                onChange={(e) =>
+                                  field.handleChange(e.target.value)
+                                }
+                                aria-invalid={isInvalid}
+                              />
+                            </div>
+                            {isInvalid && (
+                              <FieldError errors={field.state.meta.errors} />
+                            )}
+                          </Field>
+                        );
+                      }}
+                    </form.Field>
+                  )}
+                  <form.Field name="email">
                     {(field) => {
                       const isInvalid =
                         field.state.meta.isTouched && !field.state.meta.isValid;
                       return (
                         <Field>
-                          <FieldLabel htmlFor="name">Full name</FieldLabel>
+                          <FieldLabel htmlFor="email">Email address</FieldLabel>
                           <div className="relative">
-                            <UserRound className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                            <Mail className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                             <Input
-                              id={field.name}
-                              name={field.name}
-                              placeholder="Olivia Martin"
+                              id="email"
+                              type="email"
+                              placeholder="you@example.com"
                               className="pl-10"
-                              onBlur={field.handleBlur}
                               value={field.state.value}
+                              aria-invalid={status === "error"}
+                              onBlur={field.handleBlur}
                               autoComplete="off"
                               onChange={(e) =>
                                 field.handleChange(e.target.value)
                               }
-                              aria-invalid={isInvalid}
                             />
                           </div>
                           {isInvalid && (
@@ -279,210 +315,185 @@ export default function Auth() {
                       );
                     }}
                   </form.Field>
-                )}
-                <form.Field name="email">
-                  {(field) => {
-                    const isInvalid =
-                      field.state.meta.isTouched && !field.state.meta.isValid;
-                    return (
-                      <Field>
-                        <FieldLabel htmlFor="email">Email address</FieldLabel>
-                        <div className="relative">
-                          <Mail className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                          <Input
-                            id="email"
-                            type="email"
-                            placeholder="you@example.com"
-                            className="pl-10"
-                            value={field.state.value}
-                            aria-invalid={status === "error"}
-                            onBlur={field.handleBlur}
-                            autoComplete="off"
-                            onChange={(e) => field.handleChange(e.target.value)}
-                          />
-                        </div>
-                        {isInvalid && (
-                          <FieldError errors={field.state.meta.errors} />
-                        )}
-                      </Field>
-                    );
-                  }}
-                </form.Field>
-                <div className="flex flex-col gap-2">
-                  <form.Field name="password">
-                    {(field) => {
-                      const isInvalid =
-                        field.state.meta.isTouched && !field.state.meta.isValid;
-                      return (
-                        <>
-                          <div className="flex items-center justify-between">
-                            <FieldLabel htmlFor="password">Password</FieldLabel>
-                            {mode === "login" && (
-                              <Button
-                                type="button"
-                                variant="link"
-                                className="h-auto p-0 text-xs"
-                                onClick={() => setStatus("success")}
-                              >
-                                Forgot password?
-                              </Button>
-                            )}
-                          </div>
-                          <Field>
-                            <div className="relative">
-                              <LockKeyhole className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                              <Input
-                                id={field.name}
-                                name={field.name}
-                                type={showPassword ? "text" : "password"}
-                                placeholder="••••••••"
-                                className="pl-10 pr-10"
-                                onBlur={field.handleBlur}
-                                value={field.state.value}
-                                autoComplete="off"
-                                onChange={(e) =>
-                                  field.handleChange(e.target.value)
-                                }
-                                aria-invalid={isInvalid}
-                              />
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="absolute right-1 top-1/2 -translate-y-1/2"
-                                aria-label={
-                                  showPassword
-                                    ? "Hide password"
-                                    : "Show password"
-                                }
-                                onBlur={field.handleBlur}
-                                onChange={(e) =>
-                                  field.handleChange(e.target.value)
-                                }
-                                onClick={() => setShowPassword(!showPassword)}
-                              >
-                                {showPassword ? <EyeOff /> : <Eye />}
-                              </Button>
-                            </div>
-
-                            {isInvalid && (
-                              <FieldError errors={field.state.meta.errors} />
-                            )}
-                          </Field>
-                        </>
-                      );
-                    }}
-                  </form.Field>
-                </div>
-                {mode === "register" && (
-                  <>
-                    <form.Field name="confirmPassword">
+                  <div className="flex flex-col gap-2">
+                    <form.Field name="password">
                       {(field) => {
                         const isInvalid =
                           field.state.meta.isTouched &&
                           !field.state.meta.isValid;
                         return (
-                          <Field>
-                            <div className="flex flex-col gap-2">
-                              <FieldLabel htmlFor="confirm-password">
-                                Confirm password
+                          <>
+                            <div className="flex items-center justify-between">
+                              <FieldLabel htmlFor="password">
+                                Password
                               </FieldLabel>
-                              <Input
-                                id="confirm-password"
-                                onBlur={field.handleBlur}
-                                value={field.state.value}
-                                autoComplete="off"
-                                type="password"
-                                onChange={(e) =>
-                                  field.handleChange(e.target.value)
-                                }
-                                aria-invalid={isInvalid}
-                                placeholder="Re-enter your password"
-                              />
+                              {mode === "login" && (
+                                <Button
+                                  type="button"
+                                  variant="link"
+                                  className="h-auto p-0 text-xs"
+                                  onClick={() => setStatus("success")}
+                                >
+                                  Forgot password?
+                                </Button>
+                              )}
                             </div>
-                            {isInvalid && (
-                              <FieldError errors={field.state.meta.errors} />
-                            )}
-                          </Field>
+                            <Field>
+                              <div className="relative">
+                                <LockKeyhole className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                                <Input
+                                  id={field.name}
+                                  name={field.name}
+                                  type={showPassword ? "text" : "password"}
+                                  placeholder="••••••••"
+                                  className="pl-10 pr-10"
+                                  onBlur={field.handleBlur}
+                                  value={field.state.value}
+                                  autoComplete="off"
+                                  onChange={(e) =>
+                                    field.handleChange(e.target.value)
+                                  }
+                                  aria-invalid={isInvalid}
+                                />
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  className="absolute right-1 top-1/2 -translate-y-1/2"
+                                  aria-label={
+                                    showPassword
+                                      ? "Hide password"
+                                      : "Show password"
+                                  }
+                                  onBlur={field.handleBlur}
+                                  onChange={(e) =>
+                                    field.handleChange(e.target.value)
+                                  }
+                                  onClick={() => setShowPassword(!showPassword)}
+                                >
+                                  {showPassword ? <EyeOff /> : <Eye />}
+                                </Button>
+                              </div>
+
+                              {isInvalid && (
+                                <FieldError errors={field.state.meta.errors} />
+                              )}
+                            </Field>
+                          </>
                         );
                       }}
                     </form.Field>
-                    <form.Field name="role">
-                      {(field) => {
-                        return (
-                          <div className="flex flex-col gap-2">
-                            <FieldLabel htmlFor="role">
-                              I am joining as
-                            </FieldLabel>
-                            <Select
-                              value={field.state.value}
-                              id={field.name}
-                              name={field.name}
-                              onValueChange={(val) => field.handleChange(val)}
-                            >
-                              <SelectTrigger id="role">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="TENANT">Tenant</SelectItem>
-                                <SelectItem value="PROPERTY_OWNER">
-                                  Owner
-                                </SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        );
-                      }}
-                    </form.Field>
-                    <p className="text-xs leading-5 text-muted-foreground">
-                      By creating an account, you agree to Homiee&apos;s{" "}
-                      <Button variant="link" className="h-auto p-0 text-xs">
-                        Terms
-                      </Button>{" "}
-                      and{" "}
-                      <Button variant="link" className="h-auto p-0 text-xs">
-                        Privacy Policy
-                      </Button>
-                      .
-                    </p>
-                  </>
-                )}
-                <Button
-                  type="submit"
-                  className="mt-2 w-full"
-                  disabled={loading}
-                >
-                  {loading && (
-                    <Loader2
-                      className="animate-spin"
-                      data-icon="inline-start"
-                    />
+                  </div>
+                  {mode === "register" && (
+                    <>
+                      <form.Field name="confirmPassword">
+                        {(field) => {
+                          const isInvalid =
+                            field.state.meta.isTouched &&
+                            !field.state.meta.isValid;
+                          return (
+                            <Field>
+                              <div className="flex flex-col gap-2">
+                                <FieldLabel htmlFor="confirm-password">
+                                  Confirm password
+                                </FieldLabel>
+                                <Input
+                                  id="confirm-password"
+                                  onBlur={field.handleBlur}
+                                  value={field.state.value}
+                                  autoComplete="off"
+                                  type="password"
+                                  onChange={(e) =>
+                                    field.handleChange(e.target.value)
+                                  }
+                                  aria-invalid={isInvalid}
+                                  placeholder="Re-enter your password"
+                                />
+                              </div>
+                              {isInvalid && (
+                                <FieldError errors={field.state.meta.errors} />
+                              )}
+                            </Field>
+                          );
+                        }}
+                      </form.Field>
+                      <form.Field name="role">
+                        {(field) => {
+                          return (
+                            <div className="flex flex-col gap-2">
+                              <FieldLabel htmlFor="role">
+                                I am joining as
+                              </FieldLabel>
+                              <Select
+                                value={field.state.value}
+                                id={field.name}
+                                name={field.name}
+                                onValueChange={(val) => field.handleChange(val)}
+                              >
+                                <SelectTrigger id="role">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="TENANT">Tenant</SelectItem>
+                                  <SelectItem value="PROPERTY_OWNER">
+                                    Owner
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          );
+                        }}
+                      </form.Field>
+                      <p className="text-xs leading-5 text-muted-foreground">
+                        By creating an account, you agree to Homiee&apos;s{" "}
+                        <Button variant="link" className="h-auto p-0 text-xs">
+                          Terms
+                        </Button>{" "}
+                        and{" "}
+                        <Button variant="link" className="h-auto p-0 text-xs">
+                          Privacy Policy
+                        </Button>
+                        .
+                      </p>
+                    </>
                   )}
-                  {mode === "login" ? "Log in" : "Create account"}
-                </Button>
-                {mode === "login" && (
-                  <>
-                    <div className="relative my-1">
-                      <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t" />
+                  <Button
+                    type="submit"
+                    className="mt-2 w-full"
+                    disabled={loading}
+                  >
+                    {loading && (
+                      <Loader2
+                        className="animate-spin"
+                        data-icon="inline-start"
+                      />
+                    )}
+                    {mode === "login" ? "Log in" : "Create account"}
+                  </Button>
+                  {mode === "login" && (
+                    <>
+                      <div className="relative my-1">
+                        <div className="absolute inset-0 flex items-center">
+                          <div className="w-full border-t" />
+                        </div>
+                        <div className="relative flex justify-center">
+                          <span className="bg-card px-3 text-xs text-muted-foreground">
+                            or continue with
+                          </span>
+                        </div>
                       </div>
-                      <div className="relative flex justify-center">
-                        <span className="bg-card px-3 text-xs text-muted-foreground">
-                          or continue with
-                        </span>
-                      </div>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="w-full"
-                      onClick={() => setStatus("success")}
-                    >
-                      Continue with Google
-                    </Button>
-                  </>
-                )}
-              </form>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => setStatus("success")}
+                      >
+                        Continue with Google
+                      </Button>
+                    </>
+                  )}
+                </form>
+              </Suspense>
             </CardContent>
           </Card>
           <p className="mt-6 text-center text-sm text-muted-foreground">

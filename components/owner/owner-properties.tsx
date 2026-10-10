@@ -122,17 +122,6 @@ export default function OwnerProperties() {
 
   const [images, setImages] = useState<string[]>([]);
 
-  const isDirty = Object.values(form).some(Boolean) || images.length > 0;
-  useEffect(() => {
-    const warn = (event: BeforeUnloadEvent) => {
-      if (isDirty) {
-        event.preventDefault();
-        event.returnValue = "";
-      }
-    };
-    window.addEventListener("beforeunload", warn);
-    return () => window.removeEventListener("beforeunload", warn);
-  }, [isDirty]);
   function addImages(event: ChangeEvent<HTMLInputElement>) {
     const files = Array.from(event.target.files ?? []).slice(0, 5);
     setImages(files.map((file) => URL.createObjectURL(file)));
@@ -143,16 +132,6 @@ export default function OwnerProperties() {
       .filter((file) => file.type.startsWith("image/"))
       .slice(0, 5);
     setImages(files.map((file) => URL.createObjectURL(file)));
-  }
-  function handleOpenChange(nextOpen: boolean) {
-    if (
-      !nextOpen &&
-      isDirty &&
-      !saved &&
-      !window.confirm("You have unsaved changes. Leave without saving?")
-    )
-      return;
-    setOpen(nextOpen);
   }
 
   const { mutate: createProperty, isPending } = useCreateProperty();
@@ -200,6 +179,10 @@ export default function OwnerProperties() {
       }
     },
   });
+
+  function handleOpenChange(nextOpen: boolean) {
+    setOpen(nextOpen);
+  }
 
   return (
     <main className="min-h-screen bg-muted/30 text-foreground">
@@ -259,8 +242,6 @@ export default function OwnerProperties() {
                       <Input
                         id="property-name"
                         placeholder="e.g. The Oak House"
-                        value={form.name}
-                        onChange={(event) => update("name", event.target.value)}
                       />
                     </Field>
                     <Field>
