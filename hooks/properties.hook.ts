@@ -29,5 +29,6 @@ export const useGetPropertyById = (id: string) => {
   return useQuery({
     queryKey: ["property-by-id", id],
     queryFn: () => getPropertyById(id),
+    enabled: !!id && id !== "null",
   });
 };

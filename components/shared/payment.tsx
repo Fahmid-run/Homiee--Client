@@ -345,7 +345,7 @@ export default function Payments() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {listData?.map((payment) => (
+                      {listData?.map((payment: any) => (
                         <TableRow
                           key={payment.id}
                           data-state={

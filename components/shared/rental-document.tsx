@@ -302,7 +302,11 @@ function DocumentTable({
   );
 }
 
-export default function RentalDocuments({ role }) {
+export default function RentalDocuments({
+  role,
+}: {
+  role: "PROPERTY_OWNER" | "TENANT";
+}) {
   const [docs, setDocs] = useState(initialDocs);
   const [mode, setMode] = useState("owner");
   const visibleDocs = useMemo(

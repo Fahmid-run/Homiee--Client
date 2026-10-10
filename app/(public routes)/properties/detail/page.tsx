@@ -14,9 +14,7 @@ function PropertyFetcher() {
       ? null
       : segments[segments.length - 1];
 
-  const { data, isPending, isError } = useGetPropertyById(slug as string, {
-    enabled: !!slug && slug !== "null",
-  });
+  const { data, isPending, isError } = useGetPropertyById(slug as string);
 
   if (!slug || isPending) return <div>Loading property details...</div>;
   if (isError) return <div>Error loading property.</div>;

@@ -3,7 +3,7 @@
 import { getDashboard } from "@/lib/route";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useGetMe } from "./auth.hook";
+import { meQueryOptions } from "./auth.hook";
 
 export const useAfterAuth = () => {
   const router = useRouter();
@@ -12,8 +12,7 @@ export const useAfterAuth = () => {
 
   return async () => {
     const res = await queryClient.fetchQuery({
-      queryKey: ["User-Token"],
-      queryFn: useGetMe,
+      ...meQueryOptions,
       staleTime: 0,
     });
 

@@ -4,7 +4,7 @@ import React from "react";
 const ViewRequest = () => {
   return (
     <div>
-      <VisitRequests />
+      <VisitRequests role={"PROPERTY_OWNER"} />
     </div>
   );
 };

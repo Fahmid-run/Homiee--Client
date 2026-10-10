@@ -4,7 +4,7 @@ import React from "react";
 const DocumentUpload = () => {
   return (
     <div>
-      <RentalDocuments></RentalDocuments>
+      <RentalDocuments role={"PROPERTY_OWNER"}></RentalDocuments>
     </div>
   );
 };

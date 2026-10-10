@@ -162,15 +162,13 @@ function EmptyRequests({ owner }: { owner: boolean }) {
         </EmptyDescription>
       </EmptyHeader>
       {!owner && (
-        <Button asChild>
-          <Link href="/">Browse properties</Link>
-        </Button>
+        <Button render={<Link href="/">Browse properties</Link>}></Button>
       )}
     </Empty>
   );
 }
 
-function TenantRequests({ tenantViewReqData }) {
+function TenantRequests({ tenantViewReqData }: { tenantViewReqData: any }) {
   const [open, setOpen] = useState(false);
 
   function handleOpenChange(nextOpen: boolean) {
@@ -219,7 +217,7 @@ function TenantRequests({ tenantViewReqData }) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {tenantViewReqData.map((request) => (
+                {tenantViewReqData.map((request: any) => (
                   <TableRow key={request?.id}>
                     <TableCell className="pl-6">
                       <Link
@@ -379,7 +377,11 @@ function OwnerRequests() {
   );
 }
 
-export default function VisitRequests({ role }) {
+export default function VisitRequests({
+  role,
+}: {
+  role: "PROPERTY_OWNER" | "TENANT";
+}) {
   const { data, isError, isPending, error } = useGetTenantViewQRequests();
   if (isError) {
     toast.add({
@@ -421,7 +423,7 @@ export default function VisitRequests({ role }) {
               <TenantRequests tenantViewReqData={tenantViewReqData} />
             )}
 
-            {role == "OWNER" && <OwnerRequests />}
+            {role == "PROPERTY_OWNER" && <OwnerRequests />}
           </Tabs>
         </div>
       </div>

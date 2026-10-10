@@ -59,9 +59,10 @@ export default function Auth() {
     form.reset();
   }
 
-  const { mutate: login, isPending: loginPending } = useLogin();
-  const { mutate: register, isPending: registerPending } = useRegister();
+  const { mutateAsync: login, isPending: loginPending } = useLogin();
+  const { mutateAsync: register, isPending: registerPending } = useRegister();
 
+  const afterAuth = useAfterAuth();
   const form = useForm({
     defaultValues: {
       name: "",
@@ -104,38 +105,20 @@ export default function Auth() {
 
       try {
         if (mode === "login") {
-          login(loginData, {
-            onSuccess: (res) => {
-              toast.add({
-                title: "Logged in successfully",
-                type: "success",
-              });
-            },
-            onError: (err) => {
-              console.log(err);
-            },
-          });
+          await login(loginData);
+          toast.add({ title: "Logged in successfully", type: "success" });
         } else {
-          register(registerData, {
-            onSuccess: (res) => {
-              setStatus("success");
-              toast.add({
-                title: "Account created successfully",
-                type: "success",
-              });
-            },
-            onError: (err) => {
-              setStatus(getErrorMessage(err));
-            },
-          });
+          await register(registerData);
+          setStatus("success");
+          toast.add({ title: "Account created successfully", type: "success" });
         }
-      } catch (error) {
-        setStatus("error");
 
-        console.log(error);
+        await afterAuth();
+      } catch (error) {
+        setStatus(getErrorMessage(error));
+        toast.add({ title: getErrorMessage(error), type: "error" });
       } finally {
         setLoading(false);
-        await useAfterAuth();
       }
     },
   });

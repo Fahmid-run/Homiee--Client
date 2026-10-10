@@ -239,7 +239,7 @@ function ApplicationDetail({
   );
 }
 
-export function ApplicationManagement({ role }) {
+export function ApplicationManagement({ role }: { role: "owner" | "tenant" }) {
   const [selected, setSelected] = useState<Application | null>(null);
   const [items, setItems] = useState(applications);
 
@@ -362,11 +362,9 @@ export function ApplicationManagement({ role }) {
               </div>
 
               <Dialog open={open} onOpenChange={handleOpenChange}>
-                <DialogTrigger asChild>
-                  <Button>
-                    <Plus data-icon="inline-start" />
-                    Add property
-                  </Button>
+                <DialogTrigger render={<Button />}>
+                  <Plus data-icon="inline-start" />
+                  Add property
                 </DialogTrigger>
                 <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-2xl">
                   <DialogHeader>

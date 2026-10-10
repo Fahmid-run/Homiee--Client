@@ -212,7 +212,7 @@ export default function AdminDashboard() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {stats?.recentUsers?.map((userData) => (
+                    {stats?.recentUsers?.map((userData: any) => (
                       <TableRow key={userData?.id}>
                         <TableCell>
                           <div className="flex items-center gap-3">
@@ -324,7 +324,7 @@ export default function AdminDashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {stats?.recentProperties?.map((propertyData) => (
+                  {stats?.recentProperties?.map((propertyData: any) => (
                     <TableRow key={propertyData?.id}>
                       <TableCell>
                         <div>

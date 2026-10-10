@@ -115,10 +115,10 @@ export default function PropertiesPage() {
           <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-                <SheetTrigger asChild>
-                  <Button variant="outline" className="lg:hidden ">
-                    <SlidersHorizontal data-icon="inline-start" /> Filters
-                  </Button>
+                <SheetTrigger
+                  render={<Button variant="outline" className="lg:hidden" />}
+                >
+                  <SlidersHorizontal data-icon="inline-start" /> Filters
                 </SheetTrigger>
                 <SheetContent
                   side="left"
@@ -159,7 +159,7 @@ export default function PropertiesPage() {
           </div>
           {propertiesData.length ? (
             <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {propertiesData.map((property) => (
+              {propertiesData.map((property: any) => (
                 <PropertyCard key={property.id} property={property} />
               ))}
             </div>

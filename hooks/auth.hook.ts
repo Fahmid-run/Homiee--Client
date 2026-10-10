@@ -1,5 +1,5 @@
 import { userGetMe, userLogin, userRegister } from "@/features/auth/api";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { queryOptions, useMutation, useQuery } from "@tanstack/react-query";
 
 export function useLogin() {
   return useMutation({
@@ -13,10 +13,12 @@ export function useRegister() {
   });
 }
 
+export const meQueryOptions = queryOptions({
+  queryKey: ["User-Token"],
+  queryFn: userGetMe,
+  retry: false,
+});
+
 export function useGetMe() {
-  return useQuery({
-    queryKey: ["User-Token"],
-    queryFn: userGetMe,
-    retry: false,
-  });
+  return useQuery(meQueryOptions);
 }
