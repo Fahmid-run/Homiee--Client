@@ -11,7 +11,7 @@ export const getOwnerProperty = () => {
   return apiClient("/property/owner/me");
 };
 
-export const createProperty = (payload) => {
+export const createProperty = (payload: any) => {
   return apiClient("/property/", {
     headers: {
       Accept: "application/json",

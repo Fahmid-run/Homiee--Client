@@ -77,8 +77,8 @@ import {
   PropertyValues,
 } from "@/Validation/form/property.validator";
 import { toast } from "../ui/toast";
-import { useCreateNewProperty } from "@/hooks/tenant.hook";
 import { getErrorMessage } from "@/lib/getErrorMessage";
+import { useCreateProperty } from "@/hooks/properties.hook";
 
 const properties = [
   {
@@ -168,7 +168,7 @@ export default function OwnerDashboard() {
   const [open, setOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
 
-  const { mutate: createProperty, isPending } = useCreateNewProperty();
+  const { mutate: createProperty, isPending } = useCreateProperty();
 
   const form = useForm({
     defaultValues,
@@ -192,14 +192,14 @@ export default function OwnerDashboard() {
       };
 
       createProperty(data, {
-        onSuccess: (res) => {
+        onSuccess: (res: any) => {
           console.log("created");
           toast.add({
             title: "Property Created!!",
             type: "success",
           });
         },
-        onError: (err) => {
+        onError: (err: any) => {
           toast.add({
             title: getErrorMessage(err),
             type: "error",
@@ -665,13 +665,13 @@ export default function OwnerDashboard() {
                     <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                       <Icon />
                     </div>
-                    <div>
+                    {/* <div>
                       <p className="text-sm font-medium">{title}</p>
                       <p className="text-xs text-muted-foreground">{desc}</p>
                       <p className="mt-1 text-xs text-muted-foreground">
                         {date}
                       </p>
-                    </div>
+                    </div> */}
                   </div>
                 ))}
               </CardContent>
