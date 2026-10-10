@@ -411,7 +411,11 @@ export default function Auth() {
                                 value={field.state.value}
                                 id={field.name}
                                 name={field.name}
-                                onValueChange={(val) => field.handleChange(val)}
+                                onValueChange={(val) =>
+                                  field.handleChange(
+                                    val ? (val as any) : undefined,
+                                  )
+                                }
                               >
                                 <SelectTrigger id="role">
                                   <SelectValue />

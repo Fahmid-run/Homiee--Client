@@ -25,7 +25,14 @@ export default function SortDropdown({
   onChange: (value: string) => void;
 }) {
   return (
-    <Select value={value} onValueChange={onChange}>
+    <Select
+      value={value}
+      onValueChange={(val) => {
+        if (val !== null) {
+          onChange(val);
+        }
+      }}
+    >
       <SelectTrigger className="w-[180px] bg-background">
         <ArrowDownUp className="size-4 text-muted-foreground" />
         <SelectValue placeholder="Sort by" />

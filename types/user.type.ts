@@ -1,1 +1,1 @@
-export type UserRole = "ADMIN" | "TENANT" | "OWNER";
+export type UserRole = "ADMIN" | "TENANT" | "PROPERTY_OWNER";
