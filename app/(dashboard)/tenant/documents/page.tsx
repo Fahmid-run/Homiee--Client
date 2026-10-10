@@ -1,6 +1,5 @@
 "use client";
 import AuthLoader from "@/components/auth/auth-loader";
-import { AddPropertyDialog } from "@/components/property/add-property";
 import RentalDocuments from "@/components/shared/rental-document";
 import { useGetMe } from "@/hooks";
 import { useRouter } from "next/navigation";
