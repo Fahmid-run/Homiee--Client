@@ -27,22 +27,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-  FieldLegend,
-  FieldSet,
-} from "@/components/ui/field";
-
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -185,11 +169,9 @@ function TenantRequests({ tenantViewReqData }: { tenantViewReqData: any }) {
         </div>
 
         <Dialog open={open} onOpenChange={handleOpenChange}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus data-icon="inline-start" />
-              Add property
-            </Button>
+          <DialogTrigger render={<Button />}>
+            <Plus data-icon="inline-start" />
+            Add property
           </DialogTrigger>
           <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-2xl">
             <DialogHeader>

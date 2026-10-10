@@ -199,248 +199,9 @@ export default function OwnerProperties() {
               Manage your listings, rooms, and availability in one place.
             </p>
           </div>
-          <Dialog open={open} onOpenChange={handleOpenChange}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus data-icon="inline-start" />
-                Add property
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>Add a new property</DialogTitle>
-                <DialogDescription>
-                  Create a listing with the details renters need to find the
-                  right home.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="flex flex-col gap-6 py-2">
-                {error && (
-                  <Alert variant="destructive">
-                    <AlertCircle data-icon="inline-start" />
-                    <AlertTitle>Unable to save</AlertTitle>
-                    <AlertDescription>{error}</AlertDescription>
-                  </Alert>
-                )}
-                {saved && (
-                  <Alert>
-                    <Check data-icon="inline-start" />
-                    <AlertTitle>Property saved</AlertTitle>
-                    <AlertDescription>
-                      Your new property is ready to manage.
-                    </AlertDescription>
-                  </Alert>
-                )}
-                <FieldSet>
-                  <FieldLegend>Basic information</FieldLegend>
-                  <FieldGroup>
-                    <Field>
-                      <FieldLabel htmlFor="property-name">
-                        Property name{" "}
-                        <span className="text-destructive">*</span>
-                      </FieldLabel>
-                      <Input
-                        id="property-name"
-                        placeholder="e.g. The Oak House"
-                      />
-                    </Field>
-                    <Field>
-                      <FieldLabel htmlFor="description">Description</FieldLabel>
-                      <Textarea
-                        id="description"
-                        placeholder="Tell renters what makes this property special..."
-                        value={form.description}
-                        onChange={(event) =>
-                          update("description", event.target.value)
-                        }
-                      />
-                    </Field>
-                    {/* <Field>
-                      <FieldLabel>
-                        Property type{" "}
-                        <span className="text-destructive">*</span>
-                      </FieldLabel>
-                      <Select
-                        value={form.type}
-                        onValueChange={(value) => update("type", value)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Choose a property type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectLabel>Property type</SelectLabel>
-                            <SelectItem value="Apartment">Apartment</SelectItem>
-                            <SelectItem value="House">House</SelectItem>
-                            <SelectItem value="Studio">Studio</SelectItem>
-                            <SelectItem value="Duplex">Duplex</SelectItem>
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                    </Field> */}
-                  </FieldGroup>
-                </FieldSet>
-                <Separator />
-                <FieldSet>
-                  <FieldLegend>Location</FieldLegend>
-                  <FieldGroup>
-                    <Field>
-                      <FieldLabel htmlFor="address">
-                        Address <span className="text-destructive">*</span>
-                      </FieldLabel>
-                      <Input
-                        id="address"
-                        placeholder="Street address"
-                        value={form.address}
-                        onChange={(event) => {}}
-                      />
-                    </Field>
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <Field>
-                        <FieldLabel htmlFor="city">
-                          City <span className="text-destructive">*</span>
-                        </FieldLabel>
-                        <Input
-                          id="city"
-                          placeholder="New York"
-                          value={form.city}
-                          onChange={(event) =>
-                            update("city", event.target.value)
-                          }
-                        />
-                      </Field>
-                      {/* <Field>
-                        <FieldLabel htmlFor="area">
-                          Area or neighborhood
-                        </FieldLabel>
-                        <Input
-                          id="area"
-                          placeholder="e.g. Brooklyn Heights"
-                          value={form.area}
-                          onChange={(event) =>
-                            update("area", event.target.value)
-                          }
-                        />
-                      </Field> */}
-                    </div>
-                  </FieldGroup>
-                </FieldSet>
-                <Separator />
-                <FieldSet>
-                  <FieldLegend>Property details</FieldLegend>
-                  <FieldGroup>
-                    <Field>
-                      <FieldLabel htmlFor="rooms">
-                        Total rooms <span className="text-destructive">*</span>
-                      </FieldLabel>
-                      <Input
-                        id="rooms"
-                        type="number"
-                        min="1"
-                        placeholder="12"
-                        value={form.totalrooms}
-                        onChange={(event) =>
-                          update("totalrooms", event.target.value)
-                        }
-                      />
-                    </Field>
-                    {/* <Field>
-                      <FieldLabel htmlFor="amenities">Amenities</FieldLabel>
-                      <Input
-                        id="amenities"
-                        placeholder="Wi-Fi, parking, laundry (separate with commas)"
-                        value={form.amenities}
-                        onChange={(event) =>
-                          update("amenities", event.target.value)
-                        }
-                      />
-                      <FieldDescription>
-                        Add the features renters will care about most.
-                      </FieldDescription>
-                    </Field> */}
-                  </FieldGroup>
-                </FieldSet>
-                <Separator />
-                <FieldSet>
-                  <FieldLegend>Images</FieldLegend>
-                  <Field>
-                    <FieldLabel htmlFor="images" className="sr-only">
-                      Upload property images
-                    </FieldLabel>
-                    <label
-                      htmlFor="images"
-                      onDragOver={(event) => event.preventDefault()}
-                      onDrop={dropImages}
-                      className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed bg-muted/30 px-6 py-8 text-center transition-colors hover:bg-muted/60"
-                    >
-                      <Upload className="text-primary" />
-                      <span className="font-medium">
-                        Drop images here or browse
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        PNG or JPG up to 10MB · up to 5 images
-                      </span>
-                      <Input
-                        id="images"
-                        type="file"
-                        accept="image/png,image/jpeg"
-                        multiple
-                        className="sr-only"
-                        onChange={addImages}
-                      />
-                    </label>
-                  </Field>
-                  {images.length > 0 && (
-                    <div className="grid grid-cols-3 gap-3">
-                      {images.map((image, index) => (
-                        <div
-                          key={image}
-                          className="relative aspect-square overflow-hidden rounded-lg"
-                        >
-                          <Image
-                            src={image}
-                            alt={`Property preview ${index + 1}`}
-                            fill
-                            className="object-cover"
-                          />
-                          <button
-                            type="button"
-                            aria-label={`Remove image ${index + 1}`}
-                            className="absolute right-1 top-1 rounded-full bg-background/90 p-1"
-                            onClick={() =>
-                              setImages((current) =>
-                                current.filter((item) => item !== image),
-                              )
-                            }
-                          >
-                            <X />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </FieldSet>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setOpen(false)}>
-                  Cancel
-                </Button>
-                <Button>
-                  {saved ? (
-                    <>
-                      <Check data-icon="inline-start" />
-                      Saved
-                    </>
-                  ) : (
-                    "Save property"
-                  )}
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
         </div>
       </header>
-      <div className="mx-auto max-w-7xl p-5 sm:p-8">
+      {/* <div className="mx-auto max-w-7xl p-5 sm:p-8">
         <div className="mb-6 flex flex-wrap items-center gap-3">
           <Badge variant="secondary">{properties.length} properties</Badge>
           <span className="text-sm text-muted-foreground">
@@ -526,10 +287,7 @@ export default function OwnerProperties() {
                         </Badge>
                       </TableCell>
                       <TableCell className="pr-6 text-right">
-                        <PropertyActions
-                          name={property.name}
-                          onDelete={() => removeProperty(property.name)}
-                        />
+                        <PropertyActions name={property.name} />
                       </TableCell>
                     </TableRow>
                   ))}
@@ -552,10 +310,7 @@ export default function OwnerProperties() {
                       <div className="min-w-0 flex-1">
                         <div className="flex items-start justify-between gap-2">
                           <p className="font-medium">{property.name}</p>
-                          <PropertyActions
-                            name={property.name}
-                            onDelete={() => {}}
-                          />
+                          <PropertyActions name={property.name} />
                         </div>
                         <p className="mt-1 truncate text-xs text-muted-foreground">
                           {property.location}
@@ -580,23 +335,24 @@ export default function OwnerProperties() {
         <p className="mt-6 text-center text-xs text-muted-foreground">
           Changes are saved securely to your owner workspace.
         </p>
-      </div>
+      </div> */}
     </main>
   );
 }
-function PropertyActions({
-  name,
-  onDelete,
-}: {
-  name: string;
-  onDelete: () => void;
-}) {
+
+function PropertyActions({ name }: { name: string }) {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label={`Actions for ${name}`}>
-          <MoreHorizontal />
-        </Button>
+      <DropdownMenuTrigger
+        render={
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label={`Actions for ${name}`}
+          ></Button>
+        }
+      >
+        <MoreHorizontal />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem>
@@ -612,7 +368,7 @@ function PropertyActions({
           Manage rooms
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="text-destructive" onClick={onDelete}>
+        <DropdownMenuItem className="text-destructive">
           <Trash2 data-icon="inline-start" />
           Delete property
         </DropdownMenuItem>
