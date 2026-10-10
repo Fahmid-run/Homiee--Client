@@ -178,7 +178,7 @@ function TenantRequests({ tenantViewReqData }) {
   }
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex justify-between items-center">
         <div>
           <CardTitle>My visit requests</CardTitle>
           <CardDescription>
